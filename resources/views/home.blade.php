@@ -3,488 +3,418 @@
 @section('title', 'MANGCEK - Mitra Bantu Ground CEK')
 
 @section('content')
-<div class="container-fluid px-2 mt-1">
-    <!-- Judul Web -->
-    <div class="text-center mb-3 pt-2">
-        <h2 class="text-warning fw-bold">MANGCEK SE2026</h2>
-        <p class="text-muted small">(Mitra Bantu Ground CEK)</p>
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-2">
+        <!-- Header dengan logo dari link -->
+        <div class="flex items-center justify-between mb-4 pt-2 px-4">
+            <!-- Logo Kiri dari PNGEgg -->
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Lambang_Badan_Pusat_Statistik_%28BPS%29_Indonesia.svg/2560px-Lambang_Badan_Pusat_Statistik_%28BPS%29_Indonesia.svg.png"
+                alt="Logo Kiri" class="w-12 h-12 object-contain"
+                onerror="this.src='https://via.placeholder.com/48x48/ccc/666?text=Logo+Kiri';">
+
+            <!-- Judul Tengah -->
+            <div class="text-center mx-4 flex-1"> <!-- mx-4 = margin kiri-kanan -->
+                <h1 class="text-2xl font-bold text-primary">MANGCEK SE2026</h1>
+                <p class="text-gray-600 text-sm mt-1">(Mitra Bantu Ground Check)</p>
+            </div>
+
+            <!-- Logo Kanan dari BPS -->
+            <img src="https://web-api.bps.go.id/cover.php?f=fYLqVpfVtsx6SehYsctUxWIxOUo5cXlmd0ZVNnR6QWRHeU01ZUhNZ05DREFETzRzblo1bE9vazhmSUcyaHA4TkJycWt2eUZOMlFnTTlBeDFGUHc4V2NuQ1pWbGV2QnpMTERSbENvNW1rc01INFFjcDBxYnF1UlEvd2FSRGY4dWo2ZU5ORWJNNXdMM1c4Qjg3"
+                alt="Logo BPS" class="w-12 h-12 object-contain"
+                onerror="this.src='https://via.placeholder.com/48x48/ccc/666?text=Logo+BPS';">
+        </div>
+
+        <!-- Form Utama -->
+        <form id="mangcekForm" action="{{ route('pencatatan.store') }}" method="POST" enctype="multipart/form-data"
+            class="space-y-4 max-w-md mx-auto pb-6">
+            @csrf
+
+            <!-- Data Hasil SBR 2025 Card -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                <div class="bg-primary text-white px-4 py-3">
+                    <h2 class="font-bold text-sm">Data Hasil SBR 2025</h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <!-- Input Kecamatan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Kecamatan <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                            id="kecamatan" required>
+                            <option value="" selected disabled class="text-gray-400">Pilih Kecamatan</option>
+                        </select>
+                    </div>
+
+                    <!-- Input Desa/Kelurahan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Desa/Kelurahan <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                            id="desa" required>
+                            <option value="" selected disabled class="text-gray-400">Pilih Desa/Kelurahan</option>
+                        </select>
+                    </div>
+
+                    <!-- Input Nama Usaha -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Nama Usaha <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="usahaSearch" placeholder="Cari Nama Usaha..."
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg">
+
+                            <ul id="usahaResult"
+                                class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 hidden max-h-48 overflow-y-auto">
+                            </ul>
+
+                            <input type="hidden" id="kode_usaha" name="kode_nama_usaha">
+                        </div>
+                    </div>
+
+                    <!-- Input Alamat -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Alamat Usaha</label>
+                        <textarea
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50"
+                            id="alamatUsaha" rows="2" readonly></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Alamat otomatis terisi</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Hasil Profiling SBR25 <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            id="profiling_sbr25" readonly>
+                        <p class="text-xs text-gray-500 mt-1">Profiling otomatis terisi</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Hasil Cek Lapangan Card -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                <div class="bg-primary text-white px-4 py-3">
+                    <h2 class="font-bold text-sm">Hasil Cek Lapangan</h2>
+                </div>
+                <div class="p-4 space-y-4">
+                    <!-- Keberadaan Usaha -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Keberadaan Usaha <span class="text-red-500">*</span>
+                        </label>
+                        <select id="keberadaan" name="status_usaha" required>
+                            <option value="">Pilih Status</option>
+                            <option value="tidak_ditemukan">Tidak Ditemukan</option>
+                            <option value="ditemukan">Ditemukan</option>
+                            <option value="tutup">Tutup</option>
+                            <option value="ganda">Ganda</option>
+                        </select>
+
+                    </div>
+
+                    <!-- Input Alamat Baru -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Alamat (Hasil Cek)</label>
+                        <textarea
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                            id="alamatBaru" rows="2" placeholder="Masukkan alamat sesuai hasil cek lapangan"></textarea>
+                    </div>
+
+                    <!-- RT dan RW -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">RW/Dusun</label>
+                            <input type="text"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                id="rw" placeholder="Contoh: 001">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">RT</label>
+                            <input type="text"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                id="rt" placeholder="Contoh: 002">
+                        </div>
+                    </div>
+
+                    <!-- Input Foto -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Foto Usaha <span class="text-red-500">*</span>
+                        </label>
+
+                        <!-- Input File Hidden -->
+                        <input type="file" id="foto" name="photo" class="hidden" accept="image/*" capture="environment">
+
+                        <!-- Tombol Kamera -->
+                        <button type="button" onclick="document.getElementById('foto').click()"
+                            class="w-full py-3 border-2 border-dashed border-primary rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors duration-200">
+                            <div class="flex items-center justify-center space-x-2">
+                                <i class="fas fa-camera text-primary"></i>
+                                <span class="text-sm font-medium text-primary">Ambil Foto dengan Kamera</span>
+                            </div>
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1 text-center">Klik tombol di atas untuk membuka kamera</p>
+
+                        <!-- Preview Foto -->
+                        <div class="mt-3 flex justify-center">
+                            <img id="previewFoto"
+                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'%3E%3Crect width='200' height='150' fill='%23f3f4f6'/%3E%3Ccircle cx='100' cy='60' r='20' fill='%23d1d5db'/%3E%3Crect x='70' y='90' width='60' height='40' rx='5' fill='%23d1d5db'/%3E%3Ctext x='100' y='140' font-family='Arial' font-size='12' text-anchor='middle' fill='%236b7280'%3EKamera%3C/text%3E%3C/svg%3E"
+                                alt="Preview Foto"
+                                class="rounded-lg border border-gray-300 max-w-full h-auto max-h-48 object-cover">
+                        </div>
+                    </div>
+
+                    <!-- Koordinat -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Koordinat <span class="text-red-500">*</span>
+                        </label>
+
+                        <div class="space-y-2">
+                            <!-- Latitude -->
+                            <div class="flex gap-2">
+                                <input type="text"
+                                    class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    id="latitude" name="latitude" placeholder="Latitude" required>
+                                <button type="button" id="btnGetLocation"
+                                    class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Ambil</span>
+                                </button>
+                            </div>
+
+                            <!-- Longitude -->
+                            <div class="flex gap-2">
+                                <input type="text"
+                                    class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    id="longitude" name="longitude" placeholder="Longitude" required>
+                                <button type="button" id="btnGetLocation2"
+                                    class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Ambil</span>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Gunakan tombol "Ambil" untuk lokasi otomatis</p>
+                    </div>
+
+                    <!-- Nama Petugas -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">
+                            Nama Petugas <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            id="petugas" name="nama_petugas" placeholder="Masukkan nama petugas" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="flex gap-3 mt-6">
+                <button type="reset"
+                    class="flex-1 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-sm transition-colors duration-200 shadow-sm">
+                    Reset Form
+                </button>
+                <button type="submit"
+                    class="flex-1 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium text-sm transition-colors duration-200">
+                    Simpan Data
+                </button>
+            </div>
+        </form>
     </div>
 
-    <!-- Form Utama -->
-    <form id="mangcekForm" class="pb-4">
-        <!-- Subcard: Data Pencarian -->
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="card-header bg-warning text-white py-2 px-3">
-                <h6 class="mb-0 fw-bold">Data Hasil SBR 2025</h6>
-            </div>
-            <div class="card-body px-3 py-3">
-                <!-- Input Kecamatan -->
-                <div class="mb-3">
-                    <label for="kecamatan" class="form-label small fw-bold">Kecamatan <span class="text-danger">*</span></label>
-                    <select class="form-select form-select-sm" id="kecamatan" required>
-                        <option value="" selected disabled>Pilih Kecamatan</option>
-                        <option value="kec1">Kecamatan A</option>
-                        <option value="kec2">Kecamatan B</option>
-                        <option value="kec3">Kecamatan C</option>
-                        <option value="kec4">Kecamatan D</option>
-                    </select>
-                </div>
+    <!-- Notification Alert Container -->
+    <div id="alertContainer" class="fixed top-4 right-4 z-50 max-w-sm w-full"></div>
 
-                <!-- Input Desa/Kelurahan -->
-                <div class="mb-3">
-                    <label for="desa" class="form-label small fw-bold">Desa/Kelurahan <span class="text-danger">*</span></label>
-                    <select class="form-select form-select-sm" id="desa" required>
-                        <option value="" selected disabled>Pilih Desa/Kelurahan</option>
-                        <option value="desa1">Desa/Kelurahan 1</option>
-                        <option value="desa2">Desa/Kelurahan 2</option>
-                        <option value="desa3">Desa/Kelurahan 3</option>
-                        <option value="desa4">Desa/Kelurahan 4</option>
-                    </select>
-                </div>
+    <script>
+        // JavaScript untuk form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulasi data alamat
+            const usahaData = {
+                'usaha1': 'Jl. Merdeka No. 12, Kecamatan A',
+                'usaha2': 'Jl. Sudirman No. 45, Kecamatan B'
+            };
 
-                <!-- Input Nama Usaha -->
-                <div class="mb-3">
-                    <label for="usaha" class="form-label small fw-bold">Nama Usaha <span class="text-danger">*</span></label>
-                    <select class="form-select form-select-sm" id="usaha" required>
-                        <option value="" selected disabled>Pilih Nama Usaha</option>
-                        <option value="usaha1">Toko Sembako Maju Jaya</option>
-                        <option value="usaha2">Warung Makan Sederhana</option>
-                        <option value="usaha3">Bengkel Motor Sejahtera</option>
-                        <option value="usaha4">Salon Cantik</option>
-                    </select>
-                </div>
+            // Update alamat
+            document.getElementById('usaha').addEventListener('change', function() {
+                document.getElementById('alamatUsaha').value = usahaData[this.value] || '';
+            });
 
-                <!-- Input Alamat -->
-                <div class="mb-2">
-                    <label for="alamatUsaha" class="form-label small fw-bold">Alamat Usaha</label>
-                    <textarea class="form-control form-control-sm" id="alamatUsaha" rows="2" readonly style="font-size: 0.875rem;"></textarea>
-                    <div class="form-text small">Alamat otomatis terisi</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Subcard: Hasil Cek Lapangan -->
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="card-header bg-warning text-white py-2 px-3">
-                <h6 class="mb-0 fw-bold">Hasil Cek Lapangan</h6>
-            </div>
-            <div class="card-body px-3 py-3">
-                <!-- Keberadaan Usaha -->
-                <div class="mb-3">
-                    <label for="keberadaan" class="form-label small fw-bold">Keberadaan Usaha <span class="text-danger">*</span></label>
-                    <select class="form-select form-select-sm" id="keberadaan" required>
-                        <option value="" selected disabled>Pilih Status Keberadaan</option>
-                        <option value="ada">Ada</option>
-                        <option value="tidak_ada">Tidak Ada</option>
-                        <option value="pindah">Pindah Lokasi</option>
-                        <option value="tutup">Tutup Sementara</option>
-                    </select>
-                </div>
-
-                <!-- Input Alamat Baru -->
-                <div class="mb-3">
-                    <label for="alamatBaru" class="form-label small fw-bold">Alamat (Hasil Cek)</label>
-                    <textarea class="form-control form-control-sm" id="alamatBaru" rows="2" placeholder="Masukkan alamat sesuai hasil cek lapangan" style="font-size: 0.875rem;"></textarea>
-                </div>
-
-                <!-- RT dan RW -->
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label for="rt" class="form-label small fw-bold">RT/Dusun</label>
-                        <input type="text" class="form-control form-control-sm" id="rt" placeholder="Contoh: 001">
-                    </div>
-                    <div class="col-6">
-                        <label for="rw" class="form-label small fw-bold">RW</label>
-                        <input type="text" class="form-control form-control-sm" id="rw" placeholder="Contoh: 002">
-                    </div>
-                </div>
-
-                <!-- Input Foto - Khusus Mobile Camera -->
-                <div class="mb-3">
-                    <label for="foto" class="form-label small fw-bold">Foto Usaha <span class="text-danger">*</span></label>
-                    
-                    <!-- Tombol Kamera Custom -->
-                    <div class="text-center">
-                        <div class="camera-button-container mb-2">
-                            <input type="file" 
-                                   id="foto" 
-                                   class="d-none" 
-                                   accept="image/*" 
-                                   capture="environment">
-                            <button type="button" 
-                                    class="btn btn-outline-primary w-100 py-2" 
-                                    onclick="document.getElementById('foto').click()">
-                                <i class="bi bi-camera"></i> Ambil Foto dengan Kamera
-                            </button>
-                        </div>
-                        <div class="form-text small">Klik tombol di atas untuk membuka kamera</div>
-                        
-                        <!-- Preview Foto -->
-                        <div class="mt-2">
-                            <img id="previewFoto" 
-                                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='120' viewBox='0 0 150 120'%3E%3Crect width='150' height='120' fill='%23e9ecef'/%3E%3Ccircle cx='75' cy='40' r='15' fill='%23adb5bd'/%3E%3Crect x='45' y='65' width='60' height='40' rx='3' fill='%23adb5bd'/%3E%3Ctext x='75' y='115' font-family='Arial' font-size='10' text-anchor='middle' fill='%236c757d'%3EKamera%3C/text%3E%3C/svg%3E" 
-                                 alt="Preview Foto" 
-                                 class="img-thumbnail" 
-                                 style="width: 100%; max-width: 200px; height: auto;">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Koordinat -->
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Koordinat <span class="text-danger">*</span></label>
-                    <div class="row g-2 mb-2">
-                        <div class="col-8">
-                            <input type="text" class="form-control form-control-sm" id="latitude" placeholder="Latitude" required>
-                        </div>
-                        <div class="col-4">
-                            <button type="button" class="btn btn-sm btn-outline-primary w-100" id="btnGetLocation">
-                                <i class="bi bi-geo-alt"></i> Ambil
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-8">
-                            <input type="text" class="form-control form-control-sm" id="longitude" placeholder="Longitude" required>
-                        </div>
-                        <div class="col-4">
-                            <button type="button" class="btn btn-sm btn-outline-primary w-100" id="btnGetLocation2">
-                                <i class="bi bi-geo-alt"></i> Ambil
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-text small">Gunakan tombol "Ambil" untuk lokasi otomatis</div>
-                </div>
-
-                <!-- Nama Petugas -->
-                <div class="mb-2">
-                    <label for="petugas" class="form-label small fw-bold">Nama Petugas <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control form-control-sm" id="petugas" placeholder="Masukkan nama petugas" required>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tombol Aksi - DIBAWAH FORM (Non-sticky) -->
-        <div class="mt-4 mb-3">
-            <div class="row g-2">
-                <div class="col-6">
-                    <button type="reset" class="btn btn-outline-secondary w-100 py-2">Reset Form</button>
-                </div>
-                <div class="col-6">
-                    <button type="submit" class="btn btn-primary w-100 py-2">Simpan Data</button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
-<style>
-    /* Mobile First Design */
-    body {
-        background-color: #f8f9fa;
-        padding-bottom: 20px; /* Padding kecil untuk bawah */
-    }
-    
-    .container-fluid {
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-    
-    .card {
-        border-radius: 8px;
-        margin-bottom: 10px;
-    }
-    
-    .card-header {
-        border-radius: 8px 8px 0 0 !important;
-        padding: 8px 12px;
-    }
-    
-    .card-body {
-        padding: 12px;
-    }
-    
-    .form-label {
-        margin-bottom: 4px;
-    }
-    
-    .form-control, .form-select {
-        border-radius: 6px;
-        padding: 6px 10px;
-    }
-    
-    .btn {
-        border-radius: 6px;
-        font-size: 0.875rem;
-    }
-    
-    /* Camera button khusus */
-    .camera-button-container .btn {
-        background-color: #e3f2fd;
-        border: 2px dashed #0d6efd;
-        font-weight: 500;
-    }
-    
-    .camera-button-container .btn:hover {
-        background-color: #0d6efd;
-        color: white;
-    }
-    
-    /* Tombol aksi di bawah */
-    .mt-4 {
-        margin-top: 1.5rem !important;
-    }
-    
-    /* Gambar preview */
-    .img-thumbnail {
-        border-radius: 8px;
-        padding: 4px;
-        border: 1px solid #dee2e6;
-        background-color: white;
-    }
-    
-    /* Hilangkan scroll horizontal */
-    html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    
-    /* Adjust untuk layar sangat kecil */
-    @media (max-width: 360px) {
-        .container-fluid {
-            padding-left: 6px;
-            padding-right: 6px;
-        }
-        
-        h2 {
-            font-size: 1.5rem;
-        }
-        
-        .card-body {
-            padding: 10px;
-        }
-        
-        .btn {
-            padding: 8px 12px;
-        }
-    }
-    
-    /* Adjust untuk tablet */
-    @media (min-width: 768px) {
-        .container-fluid {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Simulasi data alamat berdasarkan pilihan usaha
-        const usahaData = {
-            'usaha1': 'Jl. Merdeka No. 12, Kecamatan A',
-            'usaha2': 'Jl. Sudirman No. 45, Kecamatan B',
-            'usaha3': 'Jl. Pemuda No. 8, Kecamatan C',
-            'usaha4': 'Jl. Diponegoro No. 33, Kecamatan D'
-        };
-        
-        // Update alamat saat memilih usaha
-        document.getElementById('usaha').addEventListener('change', function() {
-            const selectedUsaha = this.value;
-            document.getElementById('alamatUsaha').value = usahaData[selectedUsaha] || '';
-        });
-        
-        // Handle input file foto
-        document.getElementById('foto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validasi tipe file
-                if (!file.type.match('image.*')) {
-                    showAlert('Hanya file gambar yang diperbolehkan!', 'danger');
-                    return;
-                }
-                
-                // Validasi ukuran file (maks 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    showAlert('Ukuran file maksimal 5MB!', 'danger');
-                    return;
-                }
-                
-                // Preview gambar
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('previewFoto').src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-                
-                // Tampilkan notifikasi
-                showAlert('Foto berhasil diambil!', 'success');
-            }
-        });
-        
-        // Ambil lokasi untuk latitude
-        document.getElementById('btnGetLocation').addEventListener('click', function() {
-            getCurrentLocation('latitude');
-        });
-        
-        // Ambil lokasi untuk longitude
-        document.getElementById('btnGetLocation2').addEventListener('click', function() {
-            getCurrentLocation('longitude');
-        });
-        
-        function getCurrentLocation(targetField) {
-            if (navigator.geolocation) {
-                // Tampilkan loading state
-                const button = targetField === 'latitude' ? 
-                    document.getElementById('btnGetLocation') : 
-                    document.getElementById('btnGetLocation2');
-                
-                const originalText = button.innerHTML;
-                button.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Mengambil...';
-                button.disabled = true;
-                
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        if (targetField === 'latitude') {
-                            document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
-                        } else {
-                            document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
-                        }
-                        
-                        // Reset button
-                        button.innerHTML = originalText;
-                        button.disabled = false;
-                        
-                        // Tampilkan notifikasi sukses
-                        showAlert('Lokasi berhasil diambil!', 'success');
-                    },
-                    function(error) {
-                        let errorMessage = 'Gagal mengambil lokasi: ';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMessage += 'Izin ditolak. Aktifkan lokasi di pengaturan browser.';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMessage += 'Informasi lokasi tidak tersedia.';
-                                break;
-                            case error.TIMEOUT:
-                                errorMessage += 'Permintaan lokasi waktu habis.';
-                                break;
-                            default:
-                                errorMessage += 'Terjadi kesalahan.';
-                        }
-                        
-                        // Reset button
-                        button.innerHTML = originalText;
-                        button.disabled = false;
-                        
-                        showAlert(errorMessage, 'danger');
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                showAlert('Browser Anda tidak mendukung Geolocation', 'danger');
-            }
-        }
-        
-        // Handle form submission
-        document.getElementById('mangcekForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validasi semua required fields
-            const requiredFields = document.querySelectorAll('[required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.classList.add('is-invalid');
-                    isValid = false;
-                } else {
-                    field.classList.remove('is-invalid');
+            // Handle foto
+            document.getElementById('foto').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('previewFoto').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    showAlert('Foto berhasil diambil!', 'success');
                 }
             });
-            
-            // Validasi khusus foto
-            const fotoInput = document.getElementById('foto');
-            if (!fotoInput.files || fotoInput.files.length === 0) {
-                showAlert('Harap ambil foto terlebih dahulu!', 'danger');
-                isValid = false;
-            }
-            
-            if (isValid) {
-                // Simulasi loading
-                const submitBtn = document.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
-                submitBtn.disabled = true;
-                
-                // Simulasi proses penyimpanan
-                setTimeout(() => {
-                    // Reset button
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    
-                    // Tampilkan notifikasi sukses
-                    showAlert('Data berhasil disimpan!', 'success');
-                    
-                    // Reset form setelah 2 detik
-                    setTimeout(() => {
-                        document.getElementById('mangcekForm').reset();
-                        document.getElementById('previewFoto').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='120' viewBox='0 0 150 120'%3E%3Crect width='150' height='120' fill='%23e9ecef'/%3E%3Ccircle cx='75' cy='40' r='15' fill='%23adb5bd'/%3E%3Crect x='45' y='65' width='60' height='40' rx='3' fill='%23adb5bd'/%3E%3Ctext x='75' y='115' font-family='Arial' font-size='10' text-anchor='middle' fill='%236c757d'%3EKamera%3C/text%3E%3C/svg%3E";
-                    }, 2000);
-                }, 1500);
-            } else {
-                showAlert('Harap lengkapi semua field yang wajib diisi!', 'danger');
-                
-                // Scroll ke field pertama yang error
-                const firstError = document.querySelector('.is-invalid');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Geolocation
+            function getCurrentLocation(targetField) {
+                if (navigator.geolocation) {
+                    const button = document.getElementById(targetField === 'latitude' ? 'btnGetLocation' :
+                        'btnGetLocation2');
+                    const originalText = button.innerHTML;
+
+                    button.innerHTML = '<div class="flex items-center space-x-1"><span>Loading...</span></div>';
+                    button.disabled = true;
+
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+                            document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                            showAlert('Lokasi berhasil diambil!', 'success');
+                        },
+                        function() {
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                            showAlert('Gagal mengambil lokasi', 'error');
+                        }
+                    );
                 }
+            }
+
+            document.getElementById('btnGetLocation').addEventListener('click', () => getCurrentLocation(
+                'latitude'));
+            document.getElementById('btnGetLocation2').addEventListener('click', () => getCurrentLocation(
+                'longitude'));
+
+            // Form submission
+            document.getElementById('mangcekForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                let isValid = true;
+                document.querySelectorAll('[required]').forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('border-red-500');
+                        isValid = false;
+                    }
+                });
+
+                if (isValid) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = 'Menyimpan...';
+
+                    setTimeout(() => {
+                        showAlert('Data berhasil disimpan!', 'success');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Simpan Data';
+                        this.reset();
+                        document.getElementById('previewFoto').src =
+                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'%3E%3Crect width='200' height='150' fill='%23f3f4f6'/%3E%3Ccircle cx='100' cy='60' r='20' fill='%23d1d5db'/%3E%3Crect x='70' y='90' width='60' height='40' rx='5' fill='%23d1d5db'/%3E%3Ctext x='100' y='140' font-family='Arial' font-size='12' text-anchor='middle' fill='%236b7280'%3EKamera%3C/text%3E%3C/svg%3E";
+                    }, 1000);
+                } else {
+                    showAlert('Harap lengkapi semua field yang wajib diisi!', 'error');
+                }
+            });
+
+            // Alert function
+            function showAlert(message, type) {
+                const alertContainer = document.getElementById('alertContainer');
+                const alertDiv = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
+                    'bg-red-100 border-red-400 text-red-700';
+
+                alertDiv.className = `p-4 mb-3 rounded-lg border ${bgColor}`;
+                alertDiv.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500">&times;</button>
+            </div>
+        `;
+
+                alertContainer.appendChild(alertDiv);
+                setTimeout(() => alertDiv.remove(), 5000);
             }
         });
-        
-        // Fungsi untuk menampilkan alert
-        function showAlert(message, type) {
-            // Hapus alert sebelumnya jika ada
-            const existingAlert = document.querySelector('.alert');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-            
-            // Buat alert baru
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show mx-2 mt-2 mb-3 py-2`;
-            alertDiv.style.fontSize = '0.875rem';
-            alertDiv.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle'} me-2"></i>
-                    <div>${message}</div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" style="padding: 0.5rem;"></button>
-                </div>
-            `;
-            
-            // Tambahkan alert di bawah judul
-            const titleDiv = document.querySelector('.text-center');
-            titleDiv.parentNode.insertBefore(alertDiv, titleDiv.nextSibling);
-            
-            // Hilangkan alert setelah 5 detik
-            setTimeout(() => {
-                if (alertDiv.parentElement) {
-                    alertDiv.remove();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            fetch('/api/kecamatan')
+                .then(res => res.json())
+                .then(data => {
+                    const kecamatan = document.getElementById('kecamatan');
+                    data.forEach(kec => {
+                        kecamatan.innerHTML += `
+                    <option value="${kec.kode_kecamatan}">
+                        ${kec.nama_kecamatan}
+                    </option>`;
+                    });
+                });
+
+            document.getElementById('kecamatan').addEventListener('change', function() {
+                fetch(`/api/desa/${this.value}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const desa = document.getElementById('desa');
+                        desa.innerHTML = '<option value="">Pilih Desa</option>';
+                        data.forEach(d => {
+                            desa.innerHTML += `
+                        <option value="${d.kode_desa}">
+                            ${d.nama_desa}
+                        </option>`;
+                        });
+                    });
+            });
+
+            const searchInput = document.getElementById('usahaSearch');
+            const resultBox = document.getElementById('usahaResult');
+
+            searchInput.addEventListener('input', function() {
+                if (this.value.length < 2) {
+                    resultBox.classList.add('hidden');
+                    return;
                 }
-            }, 5000);
-        }
-        
-        // Auto-focus ke field pertama
-        document.getElementById('kecamatan').focus();
-    });
-</script>
+
+                fetch(`/api/usaha/search?q=${this.value}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultBox.innerHTML = '';
+                        data.forEach(u => {
+                            resultBox.innerHTML += `
+                        <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            data-kode="${u.kode_nama_usaha}">
+                            ${u.nama_usaha}
+                        </li>`;
+                        });
+                        resultBox.classList.remove('hidden');
+                    });
+            });
+
+            resultBox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'LI') {
+                    const kode = e.target.dataset.kode;
+                    searchInput.value = e.target.innerText;
+                    document.getElementById('kode_usaha').value = kode;
+                    resultBox.classList.add('hidden');
+
+                    fetch(`/api/usaha/${kode}`)
+                        .then(res => res.json())
+                        .then(u => {
+                            document.getElementById('alamatUsaha').value = u.alamat ?? '';
+                            document.getElementById('profiling_sbr25').value = u.status_profiling_sbr ??
+                                '';
+                        });
+                }
+            });
+
+        });
+    </script>
+
 @endsection

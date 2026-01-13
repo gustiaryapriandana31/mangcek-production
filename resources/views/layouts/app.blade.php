@@ -1,19 +1,24 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
-    <title>@yield('title', 'Laravel Bootstrap CDN')</title>
-
-    <!-- BOOTSTRAP CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'MANGCEK')</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .bg-primary { background-color: #f79039; }
+        .text-primary { color: #f79039; }
+        .border-primary { border-color: #f79039; }
+        .hover\:bg-primary-dark:hover { background-color: #e6812a; }
+    </style>
 </head>
-<body>
-
-    <div class="container mt-4">
-        @yield('content')
-    </div>
-
-    <!-- BOOTSTRAP JS CDN (Bundle + Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<body class="bg-gray-50">
+    @yield('content')
 </body>
 </html>
