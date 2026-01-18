@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             KecamatanSeeder::class,
             DesaSeeder::class,
-            NamaUsahaSeeder::class,
+            NamaUsahaExcelSeeder::class,
         ]);
     }
 }

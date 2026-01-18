@@ -30,18 +30,28 @@ class WilayahController extends Controller
     }
 
     public function searchUsaha(Request $request)
-{
-    return DB::table('nama_usaha as nu')
-        ->leftJoin('pencatatan_usaha as pu', 'nu.kode_nama_usaha', '=', 'pu.kode_nama_usaha')
-        ->whereNull('pu.kode_nama_usaha') // ❗ BELUM PERNAH DICATAT
-        ->where('nu.kode_desa', $request->kode_desa) // ❗ SESUAI DESA
-        ->where('nu.nama_usaha', 'like', '%' . $request->q . '%')
-        ->limit(10)
-        ->get([
-            'nu.kode_nama_usaha',
-            'nu.nama_usaha'
+    {
+
+        $request->validate([
+            'q' => 'required|string|min:2',
+            'kode_desa' => 'required|exists:desa,kode_desa',
         ]);
-}
+
+        return DB::table('nama_usaha as nu')
+            ->where('nu.kode_desa', $request->kode_desa)
+            ->where('nu.nama_usaha', 'like', $request->q . '%')
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('pencatatan_usaha as pu')
+                    ->whereColumn('pu.kode_nama_usaha', 'nu.kode_nama_usaha');
+            })
+            ->limit(10)
+            ->get([
+                'nu.kode_nama_usaha',
+                'nu.nama_usaha'
+            ]);
+    }
+
 
 
     public function detailUsaha($kode)
