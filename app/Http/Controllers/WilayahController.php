@@ -3,47 +3,55 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Models\NamaUsaha;
 use App\Models\Kecamatan;
 use App\Models\Desa;
 
-
-
 class WilayahController extends Controller
 {
     public function kecamatan()
     {
-        return DB::table('kecamatan')
-            ->select('kode_kecamatan', 'nama_kecamatan')
-            ->orderBy('nama_kecamatan')
-            ->get();
+        return response()->json(
+            DB::table('kecamatan')
+                ->select('kode_kecamatan', 'nama_kecamatan')
+                ->orderBy('nama_kecamatan')
+                ->get()
+        );
     }
 
     public function desa($kode_kecamatan)
     {
-        return DB::table('desa')
+        return response()->json(DB::table('desa')
             ->where('kode_kecamatan', $kode_kecamatan)
             ->select('kode_desa', 'nama_desa')
             ->orderBy('nama_desa')
-            ->get();
+            ->get()
+        );
     }
 
     public function searchUsaha(Request $request)
     {
-
-        $request->validate([
-            'q' => 'required|string|min:2',
-            'kode_desa' => 'required|exists:desa,kode_desa',
-        ]);
+        try {
+            $validated = $request->validate([
+                'q' => 'required|string|min:2',
+                'kode_desa' => 'required|exists:desa,kode_desa',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         return DB::table('nama_usaha as nu')
             ->where('nu.kode_desa', $request->kode_desa)
             ->where('nu.nama_usaha', 'like', $request->q . '%')
             ->whereNotExists(function ($q) {
                 $q->select(DB::raw(1))
-                    ->from('pencatatan_usaha as pu')
-                    ->whereColumn('pu.kode_nama_usaha', 'nu.kode_nama_usaha');
+                  ->from('pencatatan_usaha as pu')
+                  ->whereColumn('pu.kode_nama_usaha', 'nu.kode_nama_usaha');
             })
             ->limit(10)
             ->get([
@@ -51,8 +59,6 @@ class WilayahController extends Controller
                 'nu.nama_usaha'
             ]);
     }
-
-
 
     public function detailUsaha($kode)
     {

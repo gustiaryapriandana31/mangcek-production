@@ -59,8 +59,7 @@
                     <!-- Logo Kiri -->
                     <div class="flex items-center space-x-2 flex-shrink-0">
                         <div class="bg-white p-1 rounded-lg shadow-sm border border-gray-200">
-                            <img src="{{ asset('images/logo-bps.svg') }}" alt="Logo BPS" class="w-8 h-8 object-contain"
-                                onerror="this.src='https://via.placeholder.com/32x32/ccc/666?text=BPS';">
+                            <img src="{{ asset('images/logo-bps.svg') }}" alt="Logo BPS" class="w-8 h-8 object-contain">
                         </div>
                     </div>
 
@@ -81,8 +80,7 @@
                     <div class="flex items-center space-x-2 flex-shrink-0">
                         <div class="bg-white p-1 rounded-lg shadow-sm border border-gray-200">
                             <img src="{{ asset('images/logo-se2026.png') }}" alt="Logo SE2026"
-                                class="w-8 h-8 object-contain"
-                                onerror="this.src='https://via.placeholder.com/32x32/ccc/666?text=SE2026';">
+                                class="w-8 h-8 object-contain">
                         </div>
                     </div>
                 </div>
@@ -479,37 +477,96 @@
 
                     this.submit();
                 });
+                
+                /* =========================
+                HELPER METHOD TO GET DATA FROM JSON
+                ========================== */
+                function fetchJson(url) {
+                    return fetch(url, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP ${res.status} - ${url}`);
+                        }
+                        return res.json();
+                    });
+                }
+
 
                 /* =========================
                 FETCH KECAMATAN
                 ========================== */
-                fetch('/api/kecamatan')
-                    .then(r => r.json())
-                    .then(data => {
-                        data.forEach(kec => {
-                            kecamatanSelect.innerHTML += `
-                        <option value="${kec.kode_kecamatan}">
-                            ${kec.nama_kecamatan}
-                        </option>`;
-                        });
-                    });
+                // fetch('/api/kecamatan')
+                //     .then(r => r.json())
+                //     .then(data => {
+                //         data.forEach(kec => {
+                //             kecamatanSelect.innerHTML += `
+                //         <option value="${kec.kode_kecamatan}">
+                //             ${kec.nama_kecamatan}
+                //         </option>`;
+                //         });
+                //     });
+                    
+                fetchJson('/api/kecamatan')
+                  .then(data => {
+                      data.forEach(kec => {
+                          kecamatanSelect.innerHTML += `
+                            <option value="${kec.kode_kecamatan}">
+                                ${kec.nama_kecamatan}
+                            </option>`;
+                      });
+                  })
+                  .catch(err => {
+                      console.error('Gagal load kecamatan:', err);
+                  });
 
                 /* =========================
                 FETCH DESA
                 ========================== */
-                kecamatanSelect.addEventListener('change', function() {
-                    fetch(`/api/desa/${this.value}`)
-                        .then(r => r.json())
+                // kecamatanSelect.addEventListener('change', function() {
+                //     fetch(`/api/desa/${this.value}`)
+                //         .then(r => r.json())
+                //         .then(data => {
+                //             desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
+                //             data.forEach(d => {
+                //                 desaSelect.innerHTML += `
+                //             <option value="${d.kode_desa}">
+                //                 ${d.nama_desa}
+                //             </option>`;
+                //             });
+                //         });
+
+                //     usahaInput.value = '';
+                //     usahaInput.disabled = true;
+                //     usahaInput.placeholder = 'Pilih Desa dulu...';
+                //     usahaInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+
+                //     kodeUsaha.value = '';
+                //     alamatUsaha.value = '';
+                //     latitudeDatabase.textContent = '';
+                //     longitudeDatabase.textContent = '';
+                //     profilingSbr25.value = '';
+                // });
+
+                kecamatanSelect.addEventListener('change', function () {
+                    fetchJson(`/api/desa/${this.value}`)
                         .then(data => {
                             desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
                             data.forEach(d => {
                                 desaSelect.innerHTML += `
-                            <option value="${d.kode_desa}">
-                                ${d.nama_desa}
-                            </option>`;
+                                  <option value="${d.kode_desa}">
+                                      ${d.nama_desa}
+                                  </option>`;
                             });
+                        })
+                        .catch(err => {
+                            console.error('Gagal load desa:', err);
                         });
-
+                
+                    // reset tetap
                     usahaInput.value = '';
                     usahaInput.disabled = true;
                     usahaInput.placeholder = 'Pilih Desa dulu...';
@@ -521,6 +578,7 @@
                     longitudeDatabase.textContent = '';
                     profilingSbr25.value = '';
                 });
+
 
                 /* =========================
                 SEARCH USAHA
@@ -535,19 +593,38 @@
                         return;
                     }
 
-                    fetch(`/api/usaha/search?q=${this.value}&kode_desa=${desaSelect.value}`)
-                        .then(r => r.json())
+                    // fetch(`/api/usaha/search?q=${this.value}&kode_desa=${desaSelect.value}`)
+                    //     .then(r => r.json())
+                    //     .then(data => {
+                    //         resultBox.innerHTML = '';
+                    //         data.forEach(u => {
+                    //             resultBox.innerHTML += `
+                    //         <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                    //             data-kode="${u.kode_nama_usaha}">
+                    //             ${u.nama_usaha}
+                    //         </li>`;
+                    //         });
+                    //         resultBox.classList.remove('hidden');
+                    //     });
+                    
+                    
+                    fetchJson(`/api/usaha/search?q=${encodeURIComponent(this.value)}&kode_desa=${desaSelect.value}`)
                         .then(data => {
                             resultBox.innerHTML = '';
                             data.forEach(u => {
                                 resultBox.innerHTML += `
-                            <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                                data-kode="${u.kode_nama_usaha}">
-                                ${u.nama_usaha}
-                            </li>`;
+                                  <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                      data-kode="${u.kode_nama_usaha}">
+                                      ${u.nama_usaha}
+                                  </li>`;
                             });
                             resultBox.classList.remove('hidden');
+                        })
+                        .catch(err => {
+                            console.error('Gagal search usaha:', err);
+                            resultBox.classList.add('hidden');
                         });
+
                 });
 
                 resultBox.addEventListener('click', function(e) {
@@ -557,15 +634,27 @@
                     usahaInput.value = e.target.innerText;
                     resultBox.classList.add('hidden');
 
-                    fetch(`/api/usaha/${kodeUsaha.value}`)
-                        .then(r => r.json())
+                    // fetch(`/api/usaha/${kodeUsaha.value}`)
+                    //     .then(r => r.json())
+                    //     .then(u => {
+                    //         alamatUsaha.value = u.alamat ?? '';
+                    //         profilingSbr25.value = u.status_profiling_sbr ?? '';
+                    //         latitudeDatabase.textContent = u.latitude ?? '';
+                    //         longitudeDatabase.textContent = u.longitude ?? '';
+
+                    //     });
+                    
+                    fetchJson(`/api/usaha/${kodeUsaha.value}`)
                         .then(u => {
                             alamatUsaha.value = u.alamat ?? '';
                             profilingSbr25.value = u.status_profiling_sbr ?? '';
                             latitudeDatabase.textContent = u.latitude ?? '';
                             longitudeDatabase.textContent = u.longitude ?? '';
-
+                        })
+                        .catch(err => {
+                            console.error('Gagal load detail usaha:', err);
                         });
+
                 });
 
                 /* =========================
