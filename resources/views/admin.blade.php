@@ -541,12 +541,13 @@
                             name: 'DT_RowIndex',
                             orderable: false,
                             searchable: false,
-                            className: 'text-center'
+                            className: 'text-center'    
                         },
                         {
                             data: 'kode_nama_usaha',
                             name: 'nama_usaha.nama_usaha',
-                            className: 'font-medium'
+                            className: 'font-medium',
+                            render: $.fn.dataTable.render.text() // 🔥 INI KUNCINYA
                         },
                         {
                             data: 'nama_kecamatan',
