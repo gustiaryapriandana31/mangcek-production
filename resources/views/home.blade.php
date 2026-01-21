@@ -182,7 +182,6 @@
                                 id="profiling_sbr25" readonly>
                             <p class="text-xs text-gray-500 mt-1">Profiling otomatis terisi</p>
                         </div>
-
                     </div>
                 </div>
 
@@ -511,17 +510,17 @@
                 //     });
                     
                 fetchJson('/api/kecamatan')
-                  .then(data => {
-                      data.forEach(kec => {
-                          kecamatanSelect.innerHTML += `
-                            <option value="${kec.kode_kecamatan}">
-                                ${kec.nama_kecamatan}
-                            </option>`;
-                      });
-                  })
-                  .catch(err => {
-                      console.error('Gagal load kecamatan:', err);
-                  });
+                    .then(data => {
+                        data.forEach(kec => {
+                            kecamatanSelect.innerHTML += `
+                                <option value="${kec.kode_kecamatan}">
+                                    ${kec.nama_kecamatan}
+                                </option>`;
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Gagal load kecamatan:', err);
+                    });
 
                 /* =========================
                 FETCH DESA
@@ -557,9 +556,9 @@
                             desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
                             data.forEach(d => {
                                 desaSelect.innerHTML += `
-                                  <option value="${d.kode_desa}">
-                                      ${d.nama_desa}
-                                  </option>`;
+                                    <option value="${d.kode_desa}">
+                                        ${d.nama_desa}
+                                    </option>`;
                             });
                         })
                         .catch(err => {
@@ -611,12 +610,19 @@
                     fetchJson(`/api/usaha/search?q=${encodeURIComponent(this.value)}&kode_desa=${desaSelect.value}`)
                         .then(data => {
                             resultBox.innerHTML = '';
+                            // data.forEach(u => {
+                            //     resultBox.innerHTML += `
+                            //         <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            //             data-kode="${u.kode_nama_usaha}">
+                            //             ${u.nama_usaha}
+                            //         </li>`;
+                            // });
                             data.forEach(u => {
-                                resultBox.innerHTML += `
-                                  <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                                      data-kode="${u.kode_nama_usaha}">
-                                      ${u.nama_usaha}
-                                  </li>`;
+                                const li = document.createElement('li');
+                                li.className = 'px-3 py-2 hover:bg-green-100 cursor-pointer';
+                                li.dataset.kode = u.kode_nama_usaha;
+                                li.textContent = u.nama_usaha; // 🔥 INI KUNCINYA
+                                resultBox.appendChild(li);
                             });
                             resultBox.classList.remove('hidden');
                         })
@@ -679,7 +685,6 @@
                         usahaInput.classList.add('bg-gray-100', 'cursor-not-allowed');
                     }
                 });
-
             });
 
             function compressImage(file, maxKB) {
