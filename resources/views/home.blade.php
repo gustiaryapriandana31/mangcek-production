@@ -619,7 +619,7 @@
                             // });
                             data.forEach(u => {
                                 const li = document.createElement('li');
-                                li.className = 'px-3 py-2 hover:bg-green-100 cursor-pointer';
+                                li.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
                                 li.dataset.kode = u.kode_nama_usaha;
                                 li.textContent = u.nama_usaha; // 🔥 INI KUNCINYA
                                 resultBox.appendChild(li);
