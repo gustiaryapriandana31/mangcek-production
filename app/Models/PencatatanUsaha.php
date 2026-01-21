@@ -15,6 +15,8 @@ class PencatatanUsaha extends Model
         'id',
         'kode_nama_usaha',
         'status_usaha',
+        'nama_usaha_hasil',
+    'nama_usaha_sesuai',
         'alamat',
         'rw',
         'rt',

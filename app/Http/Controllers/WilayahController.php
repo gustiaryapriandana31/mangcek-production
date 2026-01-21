@@ -13,66 +13,76 @@ class WilayahController extends Controller
 {
     public function kecamatan()
     {
-        return response()->json(
-            DB::table('kecamatan')
-                ->select('kode_kecamatan', 'nama_kecamatan')
-                ->orderBy('nama_kecamatan')
-                ->get()
-        );
+        return DB::table('kecamatan')
+            ->select('kode_kecamatan', 'nama_kecamatan')
+            ->orderBy('nama_kecamatan')
+            ->get();
     }
 
     public function desa($kode_kecamatan)
     {
-        return response()->json(DB::table('desa')
+        return DB::table('desa')
             ->where('kode_kecamatan', $kode_kecamatan)
             ->select('kode_desa', 'nama_desa')
             ->orderBy('nama_desa')
-            ->get()
-        );
+            ->get();
     }
 
-    public function searchUsaha(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'q' => 'required|string|min:2',
-                'kode_desa' => 'required|exists:desa,kode_desa',
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-        }
+    // 🔥 LIST USAHA (SELECT2 + INFINITE SCROLL)
+    public function listUsahaByDesa(Request $request, $kode_desa) {
+        $page  = max((int) $request->get('page', 1), 1);
+        $limit = 20;
 
-        return DB::table('nama_usaha as nu')
-            ->where('nu.kode_desa', $request->kode_desa)
-            ->where('nu.nama_usaha', 'like', $request->q . '%')
+        $query = DB::table('nama_usaha')
+            ->where('kode_desa', $kode_desa)
             ->whereNotExists(function ($q) {
                 $q->select(DB::raw(1))
-                  ->from('pencatatan_usaha as pu')
-                  ->whereColumn('pu.kode_nama_usaha', 'nu.kode_nama_usaha');
-            })
-            ->limit(10)
-            ->get([
-                'nu.kode_nama_usaha',
-                'nu.nama_usaha'
-            ]);
-    }
+                ->from('pencatatan_usaha')
+                ->whereColumn(
+                    'pencatatan_usaha.kode_nama_usaha',
+                    'nama_usaha.kode_nama_usaha'
+                );
+            });
 
-    public function detailUsaha($kode)
-    {
-        $usaha = NamaUsaha::where('kode_nama_usaha', $kode)->first();
-
-        if (!$usaha) {
-            return response()->json([], 404);
+        if ($request->filled('q')) {
+            $query->where('nama_usaha', 'like', '%' . $request->q . '%');
         }
 
+        $total = (clone $query)->count();
+
+        $results = $query
+            ->orderBy('nama_usaha')
+            ->forPage($page, $limit)
+            ->get()
+            ->map(fn ($row) => [
+                'id'   => $row->kode_nama_usaha,
+                'text' => $row->nama_usaha
+            ]);
+
         return response()->json([
-            'latitude' => $usaha->latitude,
-            'longitude' => $usaha->longitude,
-            'alamat' => $usaha->alamat,
-            'status_profiling_sbr' => $usaha->status_profiling_sbr,
+            'results' => $results,
+            'pagination' => [
+                'more' => ($page * $limit) < $total
+            ]
         ]);
     }
+
+    public function detailUsaha($kode_nama_usaha)
+{
+    $usaha = DB::table('nama_usaha')
+        ->where('kode_nama_usaha', $kode_nama_usaha)
+        ->first();
+
+    if (!$usaha) {
+        return response()->json([], 404);
+    }
+
+    return response()->json([
+        'alamat' => $usaha->alamat?? '',
+        'latitude' => $usaha->latitude ?? '',
+        'longitude' => $usaha->longitude ?? '',
+        'status_profiling_sbr' => $usaha->status_profiling_sbr ?? '',
+    ]);
+}
+
 }

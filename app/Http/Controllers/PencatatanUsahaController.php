@@ -17,6 +17,8 @@ class PencatatanUsahaController extends Controller
                 'exists:nama_usaha,kode_nama_usaha',
                 'unique:pencatatan_usaha,kode_nama_usaha'
             ],
+            'nama_usaha_hasil'  => 'required|string',
+            'nama_usaha_sesuai' => 'required|boolean',
             'status_usaha'    => 'required|in:tidak_ditemukan,ditemukan,tutup,ganda',
             'alamat'          => 'required|string',
             'rw'              => 'required|string|max:10',
@@ -36,6 +38,8 @@ class PencatatanUsahaController extends Controller
         PencatatanUsaha::create([
             'id'              => Str::uuid(),
             'kode_nama_usaha' => $request->kode_nama_usaha,
+            'nama_usaha_hasil'  => $request->nama_usaha_hasil,
+            'nama_usaha_sesuai' => $request->nama_usaha_sesuai,
             'status_usaha'    => $request->status_usaha,
             'alamat'          => $request->alamat,
             'rw'              => $request->rw,

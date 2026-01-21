@@ -116,7 +116,7 @@
                             </label>
                             <select
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                                id="desa" required>
+                                id="desa" name="kode_desa" required>
                                 <option value="" selected disabled class="text-gray-400">Pilih Desa/Kelurahan</option>
                             </select>
                         </div>
@@ -126,17 +126,12 @@
                             <label class="block text-xs font-semibold text-gray-700 mb-1">
                                 Nama Usaha <span class="text-red-500">*</span>
                             </label>
-                            <div class="relative">
-                                <input type="text" id="usahaSearch" placeholder="Cari Nama Usaha..."
-                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg" disabled>
-
-                                <ul id="usahaResult"
-                                    class="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 hidden max-h-48 overflow-y-auto">
-                                </ul>
-
-                                <input type="hidden" id="kode_usaha" name="kode_nama_usaha">
-                            </div>
+                            <select id="usahaSelect" name="kode_nama_usaha"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                                required>
+                            </select>
                         </div>
+
 
                         <!-- Input Alamat -->
                         <div>
@@ -188,9 +183,37 @@
                 <!-- Hasil Cek Lapangan Card -->
                 <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
                     <div class="bg-primary text-white px-4 py-3">
-                        <h2 class="font-bold text-sm">Hasil Cek Lapangan</h2>
+                        <h2 class="font-bold text-sm">Hasil Ground Check</h2>
                     </div>
                     <div class="p-4 space-y-4">
+                        <!-- Nama Usaha (Hasil Cek) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                Nama Usaha (Hasil Cek)
+                            </label>
+
+                            <input type="text" id="namaUsahaHasil" name="nama_usaha_hasil"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                                readonly>
+
+                            <!-- Radio -->
+                            <div class="flex gap-4 mt-2 text-sm">
+                                <label class="flex items-center gap-1">
+                                    <input type="radio" name="nama_usaha_sesuai" value="1" checked>
+                                    <span>Sesuai</span>
+                                </label>
+
+                                <label class="flex items-center gap-1">
+                                    <input type="radio" name="nama_usaha_sesuai" value="0">
+                                    <span>Tidak sesuai</span>
+                                </label>
+                            </div>
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Jika tidak sesuai, silakan perbaiki nama usaha
+                            </p>
+                        </div>
+
                         <!-- Keberadaan Usaha -->
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 mb-1">
@@ -329,328 +352,151 @@
 
         <!-- Notification Alert Container -->
         <div id="alertContainer" class="fixed top-4 right-4 z-50 max-w-sm w-full"></div>
+
+
+
+    @endsection
+    @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            $(function() {
 
                 /* =========================
-                GLOBAL ELEMENTS
+                   ELEMENT
                 ========================== */
                 const form = document.getElementById('mangcekForm');
-                const fotoInput = document.getElementById('foto');
-                const previewFoto = document.getElementById('previewFoto');
 
                 const kecamatanSelect = document.getElementById('kecamatan');
                 const desaSelect = document.getElementById('desa');
 
-                const usahaInput = document.getElementById('usahaSearch');
-                const resultBox = document.getElementById('usahaResult');
-                const kodeUsaha = document.getElementById('kode_usaha');
-
                 const alamatUsaha = document.getElementById('alamatUsaha');
+                const profilingSbr25 = document.getElementById('profiling_sbr25');
                 const latitudeDatabase = document.getElementById('latitude_database');
                 const longitudeDatabase = document.getElementById('longitude_database');
-                const profilingSbr25 = document.getElementById('profiling_sbr25');
+
+                const fotoInput = document.getElementById('foto');
+                const previewFoto = document.getElementById('previewFoto');
 
                 const btnLat = document.getElementById('btnGetLocation');
                 const btnLng = document.getElementById('btnGetLocation2');
 
                 /* =========================
-                FOTO PREVIEW
-                ========================== */
-                fotoInput.addEventListener('change', async function(e) {
-                    const file = e.target.files[0];
-                    if (!file || !file.type.startsWith('image/')) return;
-
-                    const compressedFile = await compressImage(file, 500); // 500 KB
-
-                    // Replace file di input
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(compressedFile);
-                    fotoInput.files = dataTransfer.files;
-
-                    // Preview
-                    previewFoto.src = URL.createObjectURL(compressedFile);
-
-                    showAlert(
-                        `Foto dikompres: ${(compressedFile.size / 1024).toFixed(0)} KB`,
-                        'success'
-                    );
-                });
-
-                /* =========================
-                Membandingkan jarak
-                ========================== */
-
-                function getDatabaseCoords() {
-                    const lat = parseFloat(latitudeDatabase.textContent);
-                    const lng = parseFloat(longitudeDatabase.textContent);
-                    if (isNaN(lat) || isNaN(lng)) return null; // Kalau tidak ada data
-                    return {
-                        lat,
-                        lng
-                    };
-                }
-
-                function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
-                    const R = 6371000; // Radius bumi dalam meter
-                    const dLat = (lat2 - lat1) * Math.PI / 180;
-                    const dLon = (lon2 - lon1) * Math.PI / 180;
-                    const a =
-                        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                    return R * c; // jarak dalam meter
-                }
-
-
-
-                /* =========================
-                GEOLOCATION
-                ========================== */
-                function getCurrentLocation(target) {
-                    if (!navigator.geolocation) return;
-
-                    const button = target === 'latitude' ? btnLat : btnLng;
-                    const originalText = button.innerHTML;
-
-                    button.innerHTML = 'Loading...';
-                    button.disabled = true;
-
-                    navigator.geolocation.getCurrentPosition(
-                        pos => {
-                            document.getElementById('latitude').value = pos.coords.latitude.toFixed(6);
-                            document.getElementById('longitude').value = pos.coords.longitude.toFixed(6);
-                            // ✅ Hitung jarak ke database
-                            const dbCoords = getDatabaseCoords();
-                            const distanceInfo = document.getElementById('distanceInfo');
-                            if (dbCoords) {
-                                const distance = getDistanceFromLatLonInMeters(
-                                    dbCoords.lat, dbCoords.lng,
-                                    pos.coords.latitude, pos.coords.longitude
-                                );
-                                distanceInfo.textContent =
-                                    `Lokasi berjarak ${distance.toFixed(1)} meter dari lokasi di database.`;
-                            } else {
-                                distanceInfo.textContent = ''; // kalau database kosong, tidak tampil
-                            }
-
-                            button.innerHTML = originalText;
-                            button.disabled = false;
-                            showAlert('Lokasi berhasil diambil!', 'success');
-                        },
-                        () => {
-                            button.innerHTML = originalText;
-                            button.disabled = false;
-                            showAlert('Gagal mengambil lokasi', 'error');
-                        }
-                    );
-                }
-
-                btnLat.addEventListener('click', () => getCurrentLocation('latitude'));
-                btnLng.addEventListener('click', () => getCurrentLocation('longitude'));
-
-                /* =========================
-                SUBMIT FORM
-                ========================== */
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    if (!kodeUsaha.value) {
-                        showAlert('Silakan pilih Nama Usaha dari daftar!', 'error');
-                        return;
-                    }
-
-                    let valid = true;
-                    this.querySelectorAll('[required]').forEach(el => {
-                        if (!el.value.trim()) {
-                            el.classList.add('border-red-500');
-                            valid = false;
-                        }
-                    });
-
-                    if (!valid) {
-                        showAlert('Harap lengkapi semua field yang wajib diisi!', 'error');
-                        return;
-                    }
-
-                    this.submit();
-                });
-                
-                /* =========================
-                HELPER METHOD TO GET DATA FROM JSON
+                   HELPER FETCH JSON
                 ========================== */
                 function fetchJson(url) {
                     return fetch(url, {
                         headers: {
                             'Accept': 'application/json'
                         }
-                    })
-                    .then(res => {
-                        if (!res.ok) {
-                            throw new Error(`HTTP ${res.status} - ${url}`);
-                        }
+                    }).then(res => {
+                        if (!res.ok) throw new Error(res.status);
                         return res.json();
                     });
                 }
 
-
                 /* =========================
-                FETCH KECAMATAN
+                   FETCH KECAMATAN
                 ========================== */
-                // fetch('/api/kecamatan')
-                //     .then(r => r.json())
-                //     .then(data => {
-                //         data.forEach(kec => {
-                //             kecamatanSelect.innerHTML += `
-                //         <option value="${kec.kode_kecamatan}">
-                //             ${kec.nama_kecamatan}
-                //         </option>`;
-                //         });
-                //     });
-                    
                 fetchJson('/api/kecamatan')
                     .then(data => {
                         data.forEach(kec => {
-                            kecamatanSelect.innerHTML += `
-                                <option value="${kec.kode_kecamatan}">
-                                    ${kec.nama_kecamatan}
-                                </option>`;
+                            kecamatanSelect.insertAdjacentHTML('beforeend', `
+                    <option value="${kec.kode_kecamatan}">
+                        ${kec.nama_kecamatan}
+                    </option>
+                `);
                         });
                     })
-                    .catch(err => {
-                        console.error('Gagal load kecamatan:', err);
-                    });
+                    .catch(err => console.error('Gagal load kecamatan', err));
 
                 /* =========================
-                FETCH DESA
+                   FETCH DESA
                 ========================== */
-                // kecamatanSelect.addEventListener('change', function() {
-                //     fetch(`/api/desa/${this.value}`)
-                //         .then(r => r.json())
-                //         .then(data => {
-                //             desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
-                //             data.forEach(d => {
-                //                 desaSelect.innerHTML += `
-                //             <option value="${d.kode_desa}">
-                //                 ${d.nama_desa}
-                //             </option>`;
-                //             });
-                //         });
+                kecamatanSelect.addEventListener('change', function() {
+                    desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
 
-                //     usahaInput.value = '';
-                //     usahaInput.disabled = true;
-                //     usahaInput.placeholder = 'Pilih Desa dulu...';
-                //     usahaInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-
-                //     kodeUsaha.value = '';
-                //     alamatUsaha.value = '';
-                //     latitudeDatabase.textContent = '';
-                //     longitudeDatabase.textContent = '';
-                //     profilingSbr25.value = '';
-                // });
-
-                kecamatanSelect.addEventListener('change', function () {
                     fetchJson(`/api/desa/${this.value}`)
                         .then(data => {
-                            desaSelect.innerHTML = '<option value="">Pilih Desa</option>';
                             data.forEach(d => {
-                                desaSelect.innerHTML += `
-                                    <option value="${d.kode_desa}">
-                                        ${d.nama_desa}
-                                    </option>`;
+                                desaSelect.insertAdjacentHTML('beforeend', `
+                        <option value="${d.kode_desa}">
+                            ${d.nama_desa}
+                        </option>
+                    `);
                             });
-                        })
-                        .catch(err => {
-                            console.error('Gagal load desa:', err);
                         });
-                
-                    // reset tetap
-                    usahaInput.value = '';
-                    usahaInput.disabled = true;
-                    usahaInput.placeholder = 'Pilih Desa dulu...';
-                    usahaInput.classList.add('bg-gray-100', 'cursor-not-allowed');
 
-                    kodeUsaha.value = '';
-                    alamatUsaha.value = '';
-                    latitudeDatabase.textContent = '';
-                    longitudeDatabase.textContent = '';
-                    profilingSbr25.value = '';
+                    resetUsaha();
                 });
-
 
                 /* =========================
-                SEARCH USAHA
+                   SELECT2 USAHA (INFINITE)
                 ========================== */
-                usahaInput.disabled = true;
-                usahaInput.placeholder = 'Pilih Desa dulu...';
-                usahaInput.classList.add('bg-gray-100', 'cursor-not-allowed');
-
-                usahaInput.addEventListener('input', function() {
-                    if (this.value.length < 2 || !desaSelect.value) {
-                        resultBox.classList.add('hidden');
-                        return;
+                const usahaSelect = $('#usahaSelect').select2({
+                    placeholder: 'Pilih / Cari Nama Usaha',
+                    allowClear: true,
+                    width: '100%',
+                    minimumInputLength: 0,
+                    ajax: {
+                        delay: 300,
+                        url: function() {
+                            const desa = $('#desa').val();
+                            return desa ? `/api/usaha/by-desa/${desa}` : null;
+                        },
+                        dataType: 'json',
+                        data: function(params) {
+                            return {
+                                q: params.term || '',
+                                page: params.page || 1
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        }
                     }
+                });
 
-                    // fetch(`/api/usaha/search?q=${this.value}&kode_desa=${desaSelect.value}`)
-                    //     .then(r => r.json())
-                    //     .then(data => {
-                    //         resultBox.innerHTML = '';
-                    //         data.forEach(u => {
-                    //             resultBox.innerHTML += `
-                    //         <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                    //             data-kode="${u.kode_nama_usaha}">
-                    //             ${u.nama_usaha}
-                    //         </li>`;
-                    //         });
-                    //         resultBox.classList.remove('hidden');
-                    //     });
-                    
-                    
-                    fetchJson(`/api/usaha/search?q=${encodeURIComponent(this.value)}&kode_desa=${desaSelect.value}`)
-                        .then(data => {
-                            resultBox.innerHTML = '';
-                            // data.forEach(u => {
-                            //     resultBox.innerHTML += `
-                            //         <li class="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                            //             data-kode="${u.kode_nama_usaha}">
-                            //             ${u.nama_usaha}
-                            //         </li>`;
-                            // });
-                            data.forEach(u => {
-                                const li = document.createElement('li');
-                                li.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
-                                li.dataset.kode = u.kode_nama_usaha;
-                                li.textContent = u.nama_usaha; // 🔥 INI KUNCINYA
-                                resultBox.appendChild(li);
-                            });
-                            resultBox.classList.remove('hidden');
-                        })
-                        .catch(err => {
-                            console.error('Gagal search usaha:', err);
-                            resultBox.classList.add('hidden');
-                        });
+
+                // default disable
+                usahaSelect.prop('disabled', true);
+
+                /* =========================
+                   AKTIFKAN SAAT DESA DIPILIH
+                ========================== */
+                $('#desa').on('change', function() {
+                    resetUsaha();
+                    if (!this.value) return;
+
+                    usahaSelect.prop('disabled', false);
+
+                    setTimeout(() => {
+                        usahaSelect.select2('open');
+                    }, 200);
 
                 });
 
-                resultBox.addEventListener('click', function(e) {
-                    if (e.target.tagName !== 'LI') return;
+                /* =========================
+                   SAAT USAHA DIPILIH
+                ========================== */
+                $('#usahaSelect').on('select2:select', function(e) {
+                    const data = e.params.data; // ⬅️ AMBIL DATA SELECT2
+                    const id = data.id;
 
-                    kodeUsaha.value = e.target.dataset.kode;
-                    usahaInput.value = e.target.innerText;
-                    resultBox.classList.add('hidden');
+                    // isi nama usaha hasil (dari select2 text)
+                    $('#namaUsahaHasil')
+                        .val(data.text)
+                        .prop('readonly', true);
 
-                    // fetch(`/api/usaha/${kodeUsaha.value}`)
-                    //     .then(r => r.json())
-                    //     .then(u => {
-                    //         alamatUsaha.value = u.alamat ?? '';
-                    //         profilingSbr25.value = u.status_profiling_sbr ?? '';
-                    //         latitudeDatabase.textContent = u.latitude ?? '';
-                    //         longitudeDatabase.textContent = u.longitude ?? '';
+                    // default: SESUAI
+                    $('input[name="nama_usaha_sesuai"][value="1"]').prop('checked', true);
 
-                    //     });
-                    
-                    fetchJson(`/api/usaha/${kodeUsaha.value}`)
+                    // fetch detail SBR
+                    fetchJson(`/api/usaha/detail/${id}`)
                         .then(u => {
                             alamatUsaha.value = u.alamat ?? '';
                             profilingSbr25.value = u.status_profiling_sbr ?? '';
@@ -658,85 +504,138 @@
                             longitudeDatabase.textContent = u.longitude ?? '';
                         })
                         .catch(err => {
-                            console.error('Gagal load detail usaha:', err);
+                            console.error('Gagal load detail usaha', err);
                         });
+                });
 
+
+                $('input[name="nama_usaha_sesuai"]').on('change', function() {
+                    if (this.value === '0') {
+                        $('#namaUsahaHasil')
+                            .prop('readonly', false)
+                            .removeClass('bg-gray-100')
+                            .addClass('bg-white');
+                    } else {
+                        $('#namaUsahaHasil')
+                            .prop('readonly', true)
+                            .addClass('bg-gray-100');
+                    }
+                });
+
+
+                function resetUsaha() {
+                    usahaSelect.val(null).trigger('change');
+                    usahaSelect.prop('disabled', true);
+                    alamatUsaha.value = '';
+                    profilingSbr25.value = '';
+                    latitudeDatabase.textContent = '';
+                    longitudeDatabase.textContent = '';
+                }
+
+                /* =========================
+                   FOTO PREVIEW + COMPRESS
+                ========================== */
+                fotoInput.addEventListener('change', async function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const compressed = await compressImage(file, 500);
+                    const dt = new DataTransfer();
+                    dt.items.add(compressed);
+                    fotoInput.files = dt.files;
+                    previewFoto.src = URL.createObjectURL(compressed);
                 });
 
                 /* =========================
-                RESET SAAT DESA GANTI
+                   GEOLOCATION
                 ========================== */
-                desaSelect.addEventListener('change', function() {
-                    usahaInput.value = '';
-                    kodeUsaha.value = '';
-                    resultBox.classList.add('hidden');
-                    alamatUsaha.value = '';
-                    latitudeDatabase.textContent = '';
-                    longitudeDatabase.textContent = '';
-                    profilingSbr25.value = '';
+                function getDistance(lat1, lon1, lat2, lon2) {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a =
+                        Math.sin(dLat / 2) ** 2 +
+                        Math.cos(lat1 * Math.PI / 180) *
+                        Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) ** 2;
+                    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+                }
 
-                    if (this.value) {
-                        usahaInput.disabled = false;
-                        usahaInput.placeholder = 'Cari Nama Usaha...';
-                        usahaInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
-                    } else {
-                        usahaInput.disabled = true;
-                        usahaInput.placeholder = 'Pilih Desa dulu...';
-                        usahaInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                function getCurrentLocation() {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        latitude.value = pos.coords.latitude.toFixed(6);
+                        longitude.value = pos.coords.longitude.toFixed(6);
+
+                        if (latitudeDatabase.textContent) {
+                            const d = getDistance(
+                                parseFloat(latitudeDatabase.textContent),
+                                parseFloat(longitudeDatabase.textContent),
+                                pos.coords.latitude,
+                                pos.coords.longitude
+                            );
+                            document.getElementById('distanceInfo').textContent =
+                                `Jarak ${d.toFixed(1)} meter dari database`;
+                        }
+                    });
+                }
+
+                btnLat.addEventListener('click', getCurrentLocation);
+                btnLng.addEventListener('click', getCurrentLocation);
+
+                /* =========================
+                   SUBMIT VALIDATION
+                ========================== */
+                form.addEventListener('submit', function(e) {
+                    if (!$('#usahaSelect').val()) {
+                        e.preventDefault();
+                        alert('Pilih Nama Usaha terlebih dahulu');
                     }
                 });
+
             });
 
+            /* =========================
+               IMAGE COMPRESS
+            ========================== */
             function compressImage(file, maxKB) {
                 return new Promise(resolve => {
                     const img = new Image();
                     const reader = new FileReader();
 
-                    reader.onload = e => {
-                        img.src = e.target.result;
-                    };
+                    reader.onload = e => img.src = e.target.result;
 
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
 
-                        // Resize (maks lebar 1280px)
-                        const maxWidth = 1280;
-                        let {
-                            width,
-                            height
-                        } = img;
-
-                        if (width > maxWidth) {
-                            height = height * (maxWidth / width);
-                            width = maxWidth;
+                        let w = img.width,
+                            h = img.height;
+                        if (w > 1280) {
+                            h *= 1280 / w;
+                            w = 1280;
                         }
 
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
 
-                        let quality = 0.7;
-
-                        function attemptCompress() {
+                        let q = 0.7;
+                        (function compress() {
                             canvas.toBlob(blob => {
-                                if (blob.size / 1024 <= maxKB || quality <= 0.4) {
+                                if (blob.size / 1024 <= maxKB || q <= 0.4) {
                                     resolve(new File([blob], file.name, {
                                         type: 'image/jpeg'
                                     }));
                                 } else {
-                                    quality -= 0.1;
-                                    attemptCompress();
+                                    q -= 0.1;
+                                    compress();
                                 }
-                            }, 'image/jpeg', quality);
-                        }
-
-                        attemptCompress();
+                            }, 'image/jpeg', q);
+                        })();
                     };
 
                     reader.readAsDataURL(file);
                 });
             }
         </script>
-
-    @endsection
+    @endpush
