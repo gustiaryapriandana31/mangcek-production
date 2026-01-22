@@ -59,9 +59,15 @@ class PencatatanUsahaController extends Controller
         if ($request->ajax()) {
             $data = PencatatanUsaha::select([
                 'pencatatan_usaha.*',
+
+                // dari tabel nama_usaha
                 'nama_usaha.nama_usaha as nama_usaha_text',
+                'nama_usaha.kode_desa',
+                'nama_usaha.kode_kecamatan',
+
+                // dari tabel desa & kecamatan
                 'desa.nama_desa',
-                'kecamatan.nama_kecamatan'
+                'kecamatan.nama_kecamatan',
             ])
                 ->leftJoin('nama_usaha', 'pencatatan_usaha.kode_nama_usaha', '=', 'nama_usaha.kode_nama_usaha')
                 ->leftJoin('desa', 'nama_usaha.kode_desa', '=', 'desa.kode_desa')
@@ -77,8 +83,20 @@ class PencatatanUsahaController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
+                ->editColumn('kode_desa', function ($row) {
+                    return $row->kode_desa ?? '-';
+                })
+                ->editColumn('kode_kecamatan', function ($row) {
+                    return $row->kode_kecamatan ?? '-';
+                })
+                ->editColumn('nama_usaha_hasil', function ($row) {
+                    return $row->nama_usaha_hasil ?? '-';
+                })
+                ->editColumn('nama_usaha', function ($row) {
+                    return $row->nama_usaha_text?? '-';
+                })
                 ->editColumn('kode_nama_usaha', function ($row) {
-                    return $row->nama_usaha_text ?? '<span class="text-gray-500">' . $row->kode_nama_usaha . '</span>';
+                    return $row->kode_nama_usaha ?? '<span class="text-gray-500">' . $row->kode_nama_usaha . '</span>';
                 })
                 ->editColumn('photo_path', function ($row) {
                     if ($row->photo_path) {
@@ -165,7 +183,7 @@ class PencatatanUsahaController extends Controller
 
         return redirect()->back()->with('success', 'Data berhasil diupdate!');
     }
-    
+
     public function destroy($id)
     {
         try {

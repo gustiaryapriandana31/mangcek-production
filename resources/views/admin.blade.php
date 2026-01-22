@@ -4,41 +4,39 @@
 
 @section('content')
     <div class="px-4 pb-2">
-        <div
-                class="bg-gradient-to-r from-gray-50 to-white shadow-md rounded-b-lg mb-6 py-2 px-4 border-b border-gray-200">
-                <div class="flex items-center justify-between max-w-6xl mx-auto">
-                    <!-- Logo Kiri -->
-                    <div class="flex items-center space-x-2 flex-shrink-0">
-                        <div class="bg-white p-1 rounded-lg shadow-sm border border-gray-200">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Lambang_Badan_Pusat_Statistik_%28BPS%29_Indonesia.svg/2560px-Lambang_Badan_Pusat_Statistik_%28BPS%29_Indonesia.svg.png"
-                                alt="Logo BPS" class="w-8 h-8 object-contain"
-                                onerror="this.src='https://via.placeholder.com/32x32/ccc/666?text=BPS';">
-                        </div>
+        <div class="bg-gradient-to-r from-gray-50 to-white shadow-md rounded-b-lg mb-6 py-2 px-4 border-b border-gray-200">
+            <div class="flex items-center justify-between max-w-6xl mx-auto">
+                <!-- Logo Kiri -->
+                <div class="flex items-center space-x-2 flex-shrink-0">
+                    <div class="bg-white p-1 rounded-lg shadow-sm border border-gray-200">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Lambang_Badan_Pusat_Statistik_%28BPS%29_Indonesia.svg/2560px-Lambang_Badan_Pusat_Statistik_%28BPS%29_Indonesia.svg.png"
+                            alt="Logo BPS" class="w-8 h-8 object-contain"
+                            onerror="this.src='https://via.placeholder.com/32x32/ccc/666?text=BPS';">
                     </div>
+                </div>
 
-                    <!-- Judul Tengah dengan warna #f79039 dan #febd26 -->
-                    <div class="text-center flex-1 min-w-0 mx-2">
-                        <h1
-                            class="text-lg md:text-2xl lg:text-3xl font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
-                            <span style="color: #f79039" class="inline-block">MANGCEK</span>
-                            <span style="color: #febd26" class="inline-block ml-1 md:ml-2">SE2026</span>
-                        </h1>
-                        <div
-                            class="mt-0 md:mt-1 text-gray-600 text-xs md:text-sm whitespace-nowrap overflow-hidden text-ellipsis px-1">
-                            (Mitra Bantu Ground Check)
-                        </div>
+                <!-- Judul Tengah dengan warna #f79039 dan #febd26 -->
+                <div class="text-center flex-1 min-w-0 mx-2">
+                    <h1
+                        class="text-lg md:text-2xl lg:text-3xl font-bold tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
+                        <span style="color: #f79039" class="inline-block">MANGCEK</span>
+                        <span style="color: #febd26" class="inline-block ml-1 md:ml-2">SE2026</span>
+                    </h1>
+                    <div
+                        class="mt-0 md:mt-1 text-gray-600 text-xs md:text-sm whitespace-nowrap overflow-hidden text-ellipsis px-1">
+                        (Mitra Bantu Ground Check)
                     </div>
+                </div>
 
-                    <!-- Logo Kanan -->
-                    <div class="flex items-center space-x-2 flex-shrink-0">
-                        <div class="bg-white p-1 rounded-lg shadow-sm border border-gray-200">
-                            <img src="{{ asset('images/logo-se2026.png') }}" alt="Logo SE2026"
-                                class="w-8 h-8 object-contain"
-                                onerror="this.src='https://via.placeholder.com/32x32/ccc/666?text=SE2026';">
-                        </div>
+                <!-- Logo Kanan -->
+                <div class="flex items-center space-x-2 flex-shrink-0">
+                    <div class="bg-white p-1 rounded-lg shadow-sm border border-gray-200">
+                        <img src="{{ asset('images/logo-se2026.png') }}" alt="Logo SE2026" class="w-8 h-8 object-contain"
+                            onerror="this.src='https://via.placeholder.com/32x32/ccc/666?text=SE2026';">
                     </div>
                 </div>
             </div>
+        </div>
 
         <!-- Card untuk tabel -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
@@ -67,10 +65,23 @@
                                     No</th>
                                 <th
                                     class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                                    Kode Usaha</th>
+                                <th
+                                    class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
                                     Nama Usaha</th>
                                 <th
                                     class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                                    Nama Usaha Baru</th>
+
+                                <th
+                                    class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                                    Kode Kecamatan</th>
+                                <th
+                                    class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
                                     Kecamatan</th>
+                                <th
+                                    class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
+                                    Kode Desa</th>
                                 <th
                                     class="px-3 py-2 text-center font-medium text-gray-700 uppercase tracking-wider border-r border-gray-200">
                                     Desa</th>
@@ -376,153 +387,139 @@
             // Export to CSV function - Menggunakan data mentah dari route baru
             // Export to CSV function - PERBAIKAN LENGKAP
             function exportToCSV() {
-                $.ajax({
-                    url: "{{ route('pencatatan.index') }}",
-                    type: 'GET',
-                    data: {
-                        draw: 1,
-                        start: 0,
-                        length: -1
-                    },
-                    success: function(response) {
-                        var data = response.data;
-                        var csvData = [];
+    $.ajax({
+        url: "{{ route('pencatatan.index') }}",
+        type: 'GET',
+        data: {
+            draw: 1,
+            start: 0,
+            length: -1
+        },
+        success: function(response) {
+            const data = response.data;
+            const csvData = [];
 
-                        // Header
-                        csvData.push([
-                            'No',
-                            'Nama Usaha',
-                            'Kecamatan',
-                            'Desa',
-                            'Status',
-                            'Alamat',
-                            'RT',
-                            'RW',
-                            'Latitude',
-                            'Longitude',
-                            'Link Foto',
-                            'Petugas',
-                            'Tanggal'
-                        ]);
+            // ===== HEADER CSV =====
+            csvData.push([
+                'No',
+                'Kode Usaha',
+                'Nama Usaha',
+                'Nama Usaha Baru',
+                'Kode Kecamatan',
+                'Kecamatan',
+                'Kode Desa',
+                'Desa',
+                'Status Usaha',
+                'Alamat',
+                'RT',
+                'RW',
+                'Latitude',
+                'Longitude',
+                'Link Foto',
+                'Petugas',
+                'Tanggal'
+            ]);
 
-                        // Data rows
-                        data.forEach(function(row, index) {
-                            // Fungsi untuk membersihkan data dari HTML tags
-                            function cleanData(value) {
-                                if (!value) return '';
-
-                                var str = String(value);
-
-                                // Jika berisi HTML span, return string kosong atau '-'
-                                if (str.includes('<span') || str.includes('</span>')) {
-                                    return '';
-                                }
-
-                                // Jika berisi HTML tag lain, extract teks saja
-                                if (str.includes('<')) {
-                                    // Hapus semua HTML tags
-                                    str = str.replace(/<[^>]*>/g, '');
-                                }
-
-                                return str.trim();
-                            }
-
-                            // Clean photo path
-                            var photoLink = '';
-                            if (row.photo_path) {
-                                var cleanPath = row.photo_path;
-                                // Jika berisi HTML tag, extract path-nya
-                                if (cleanPath.includes('href=')) {
-                                    var match = cleanPath.match(/href="([^"]+)"/);
-                                    if (match) cleanPath = match[1];
-                                }
-                                // Hapus HTML tags lainnya
-                                cleanPath = cleanPath.replace(/<[^>]*>/g, '');
-                                // Buat URL lengkap jika masih ada isinya
-                                if (cleanPath.trim() !== '') {
-                                    photoLink = window.location.origin + cleanPath;
-                                }
-                            }
-
-                            var statusText = '';
-                            switch (row.status_usaha) {
-                                case 'tidak_ditemukan':
-                                    statusText = 'Tidak Ditemukan';
-                                    break;
-                                case 'ditemukan':
-                                    statusText = 'Ditemukan';
-                                    break;
-                                case 'tutup':
-                                    statusText = 'Tutup';
-                                    break;
-                                case 'ganda':
-                                    statusText = 'Ganda';
-                                    break;
-                            }
-
-                            csvData.push([
-                                index + 1,
-                                cleanData(row.nama_usaha_text || row.kode_nama_usaha),
-                                cleanData(row.nama_kecamatan),
-                                cleanData(row.nama_desa),
-                                statusText,
-                                cleanData(row.alamat),
-                                cleanData(row.rt),
-                                cleanData(row.rw),
-                                cleanData(row.latitude), // Sudah bersih dari HTML
-                                cleanData(row.longitude), // Sudah bersih dari HTML
-                                photoLink,
-                                cleanData(row.nama_petugas),
-                                new Date(row.created_at).toLocaleDateString('id-ID', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric'
-                                })
-                            ]);
-                        });
-
-                        // Convert to CSV
-                        var csv = Papa.unparse(csvData);
-
-                        // Create download link
-                        var blob = new Blob([csv], {
-                            type: 'text/csv;charset=utf-8;'
-                        });
-                        var link = document.createElement("a");
-                        var url = URL.createObjectURL(blob);
-
-                        link.setAttribute("href", url);
-                        link.setAttribute("download", "pencatatan_usaha_" + new Date().toISOString().slice(0, 10) +
-                            ".csv");
-                        link.style.visibility = 'hidden';
-
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil!',
-                            text: 'Data berhasil diexport ke CSV',
-                            timer: 2000,
-                            showConfirmButton: false,
-                            toast: true,
-                            position: 'top-end',
-                            width: 300
-                        });
-                    },
-                    error: function() {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: 'Gagal mengexport data',
-                            toast: true,
-                            position: 'top-end',
-                            width: 300
-                        });
-                    }
-                });
+            // ===== HELPER =====
+            function clean(value) {
+                if (!value) return '';
+                let str = String(value);
+                str = str.replace(/<[^>]*>/g, ''); // hapus HTML
+                return str.trim();
             }
+
+            function statusText(val) {
+                return {
+                    tidak_ditemukan: 'Tidak Ditemukan',
+                    ditemukan: 'Ditemukan',
+                    tutup: 'Tutup',
+                    ganda: 'Ganda'
+                }[val] || '';
+            }
+
+            // ===== DATA ROWS =====
+            data.forEach((row, index) => {
+                let photoLink = '';
+
+                if (row.photo_path) {
+                    let path = row.photo_path;
+
+                    // extract href jika HTML
+                    if (path.includes('href=')) {
+                        const match = path.match(/href="([^"]+)"/);
+                        if (match) path = match[1];
+                    }
+
+                    path = path.replace(/<[^>]*>/g, '').trim();
+
+                    if (path) {
+                        photoLink = path.startsWith('http')
+                            ? path
+                            : window.location.origin + (path.startsWith('/') ? path : '/storage/' + path);
+                    }
+                }
+
+                csvData.push([
+                    index + 1,
+                    clean(row.kode_nama_usaha),
+                    clean(row.nama_usaha_text),
+                    clean(row.nama_usaha_hasil),
+                    clean(row.kode_kecamatan),
+                    clean(row.nama_kecamatan),
+                    clean(row.kode_desa),
+                    clean(row.nama_desa),
+                    statusText(row.status_usaha),
+                    clean(row.alamat),
+                    clean(row.rt),
+                    clean(row.rw),
+                    clean(row.latitude),
+                    clean(row.longitude),
+                    photoLink,
+                    clean(row.nama_petugas),
+                    new Date(row.created_at).toLocaleDateString('id-ID', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                    })
+                ]);
+            });
+
+            // ===== EXPORT =====
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+
+            link.href = URL.createObjectURL(blob);
+            link.download = "pencatatan_usaha_lengkap_" + new Date().toISOString().slice(0, 10) + ".csv";
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'CSV berhasil diexport lengkap',
+                timer: 2000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                width: 300
+            });
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Gagal mengexport CSV',
+                toast: true,
+                position: 'top-end',
+                width: 300
+            });
+        }
+    });
+}
 
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
@@ -541,17 +538,50 @@
                             name: 'DT_RowIndex',
                             orderable: false,
                             searchable: false,
-                            className: 'text-center'    
+                            className: 'text-center'
                         },
                         {
                             data: 'kode_nama_usaha',
-                            name: 'nama_usaha.nama_usaha',
+                            name: 'kode_nama_usaha',
                             className: 'font-medium',
                             render: $.fn.dataTable.render.text() // 🔥 INI KUNCINYA
                         },
                         {
+                            data: 'nama_usaha',
+                            name: 'pencatatan_usaha.nama_usaha_hasil',
+                            className: 'font-medium',
+                            render: function(data) {
+                                return data || '<span class="text-gray-400">-</span>';
+                            }
+                        },
+                        {
+                            data: 'nama_usaha_hasil',
+                            name: 'pencatatan_usaha.nama_usaha_hasil',
+                            className: 'font-medium',
+                            render: function(data) {
+                                return data || '<span class="text-gray-400">-</span>';
+                            }
+                        },
+                        {
+                            data: 'kode_kecamatan',
+                            name: 'nama_usaha.kode_kecamatan',
+                            className: 'text-center',
+                            render: function(data) {
+                                return data || '<span class="text-gray-400">-</span>';
+                            }
+                        },
+
+                        {
                             data: 'nama_kecamatan',
                             name: 'kecamatan.nama_kecamatan',
+                            render: function(data) {
+                                return data || '<span class="text-gray-400">-</span>';
+                            }
+                        },
+                        {
+                            data: 'kode_desa',
+                            name: 'nama_usaha.kode_desa',
+                            className: 'text-center',
                             render: function(data) {
                                 return data || '<span class="text-gray-400">-</span>';
                             }
