@@ -53,6 +53,7 @@ class PencatatanUsahaController extends Controller
         return redirect()->back()->with('success', 'Data berhasil disimpan!');
     }
 
+
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -164,7 +165,7 @@ class PencatatanUsahaController extends Controller
 
         return redirect()->back()->with('success', 'Data berhasil diupdate!');
     }
-
+    
     public function destroy($id)
     {
         try {
