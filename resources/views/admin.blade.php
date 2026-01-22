@@ -387,139 +387,150 @@
             // Export to CSV function - Menggunakan data mentah dari route baru
             // Export to CSV function - PERBAIKAN LENGKAP
             function exportToCSV() {
-    $.ajax({
-        url: "{{ route('pencatatan.index') }}",
-        type: 'GET',
-        data: {
-            draw: 1,
-            start: 0,
-            length: -1
-        },
-        success: function(response) {
-            const data = response.data;
-            const csvData = [];
+                $.ajax({
+                    url: "{{ route('pencatatan.index') }}",
+                    type: 'GET',
+                    data: {
+                        draw: 1,
+                        start: 0,
+                        length: -1
+                    },
+                    success: function(response) {
+                        const data = response.data;
+                        const csvData = [];
 
-            // ===== HEADER CSV =====
-            csvData.push([
-                'No',
-                'Kode Usaha',
-                'Nama Usaha',
-                'Nama Usaha Baru',
-                'Kode Kecamatan',
-                'Kecamatan',
-                'Kode Desa',
-                'Desa',
-                'Status Usaha',
-                'Alamat',
-                'RT',
-                'RW',
-                'Latitude',
-                'Longitude',
-                'Link Foto',
-                'Petugas',
-                'Tanggal'
-            ]);
+                        // ===== HEADER CSV =====
+                        csvData.push([
+                            'No',
+                            'Kode Usaha',
+                            'Nama Usaha',
+                            'Nama Usaha Baru',
+                            'Kode Kecamatan',
+                            'Kecamatan',
+                            'Kode Desa',
+                            'Desa',
+                            'Status Usaha',
+                            'Alamat',
+                            'RT',
+                            'RW',
+                            'Latitude',
+                            'Longitude',
+                            'Link Foto',
+                            'Petugas',
+                            'Tanggal'
+                        ]);
 
-            // ===== HELPER =====
-            function clean(value) {
-                if (!value) return '';
-                let str = String(value);
-                str = str.replace(/<[^>]*>/g, ''); // hapus HTML
-                return str.trim();
-            }
+                        // ===== HELPER =====
+                        function clean(value) {
+                            if (!value) return '';
 
-            function statusText(val) {
-                return {
-                    tidak_ditemukan: 'Tidak Ditemukan',
-                    ditemukan: 'Ditemukan',
-                    tutup: 'Tutup',
-                    ganda: 'Ganda'
-                }[val] || '';
-            }
+                            let str = String(value);
 
-            // ===== DATA ROWS =====
-            data.forEach((row, index) => {
-                let photoLink = '';
+                            // 1. Hapus HTML tag
+                            str = str.replace(/<[^>]*>/g, '');
 
-                if (row.photo_path) {
-                    let path = row.photo_path;
+                            // 2. Decode HTML entities (&lt; &gt; &amp; dll)
+                            const txt = document.createElement('textarea');
+                            txt.innerHTML = str;
+                            str = txt.value;
 
-                    // extract href jika HTML
-                    if (path.includes('href=')) {
-                        const match = path.match(/href="([^"]+)"/);
-                        if (match) path = match[1];
+                            return str.trim();
+                        }
+
+                        function statusText(val) {
+                            return {
+                                tidak_ditemukan: 'Tidak Ditemukan',
+                                ditemukan: 'Ditemukan',
+                                tutup: 'Tutup',
+                                ganda: 'Ganda'
+                            }[val] || '';
+                        }
+                        
+
+
+                        // ===== DATA ROWS =====
+                        data.forEach((row, index) => {
+                            let photoLink = '';
+
+                            if (row.photo_path) {
+                                let path = row.photo_path;
+
+                                // extract href jika HTML
+                                if (path.includes('href=')) {
+                                    const match = path.match(/href="([^"]+)"/);
+                                    if (match) path = match[1];
+                                }
+
+                                path = path.replace(/<[^>]*>/g, '').trim();
+
+                                if (path) {
+                                    photoLink = path.startsWith('http')
+                                        ? path
+                                        : window.location.origin + (path.startsWith('/') ? path : '/storage/' + path);
+                                }
+                            }
+
+                            csvData.push([
+                                index + 1,
+                                clean(row.kode_nama_usaha),
+                                clean(row.nama_usaha_text),
+                                clean(row.nama_usaha_hasil),
+                                clean(row.kode_kecamatan),
+                                clean(row.nama_kecamatan),
+                                clean(row.kode_desa),
+                                clean(row.nama_desa),
+                                statusText(row.status_usaha),
+                                clean(row.alamat),
+                                clean(row.rt),
+                                clean(row.rw),
+                                clean(row.latitude),
+                                clean(row.longitude),
+                                photoLink,
+                                clean(row.nama_petugas),
+                                new Date(row.created_at).toLocaleDateString('id-ID', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                })
+                            ]);
+                        });
+
+                        // ===== EXPORT =====
+                        const csv = Papa.unparse(csvData);
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement("a");
+
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "pencatatan_usaha_lengkap_" + new Date().toISOString().slice(0, 10) + ".csv";
+                        link.style.visibility = 'hidden';
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'CSV berhasil diexport lengkap',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Gagal mengexport CSV',
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
                     }
-
-                    path = path.replace(/<[^>]*>/g, '').trim();
-
-                    if (path) {
-                        photoLink = path.startsWith('http')
-                            ? path
-                            : window.location.origin + (path.startsWith('/') ? path : '/storage/' + path);
-                    }
-                }
-
-                csvData.push([
-                    index + 1,
-                    clean(row.kode_nama_usaha),
-                    clean(row.nama_usaha_text),
-                    clean(row.nama_usaha_hasil),
-                    clean(row.kode_kecamatan),
-                    clean(row.nama_kecamatan),
-                    clean(row.kode_desa),
-                    clean(row.nama_desa),
-                    statusText(row.status_usaha),
-                    clean(row.alamat),
-                    clean(row.rt),
-                    clean(row.rw),
-                    clean(row.latitude),
-                    clean(row.longitude),
-                    photoLink,
-                    clean(row.nama_petugas),
-                    new Date(row.created_at).toLocaleDateString('id-ID', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric'
-                    })
-                ]);
-            });
-
-            // ===== EXPORT =====
-            const csv = Papa.unparse(csvData);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-
-            link.href = URL.createObjectURL(blob);
-            link.download = "pencatatan_usaha_lengkap_" + new Date().toISOString().slice(0, 10) + ".csv";
-            link.style.visibility = 'hidden';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'CSV berhasil diexport lengkap',
-                timer: 2000,
-                showConfirmButton: false,
-                toast: true,
-                position: 'top-end',
-                width: 300
-            });
-        },
-        error: function() {
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: 'Gagal mengexport CSV',
-                toast: true,
-                position: 'top-end',
-                width: 300
-            });
-        }
-    });
-}
+                });
+            }
 
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
