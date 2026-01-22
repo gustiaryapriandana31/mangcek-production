@@ -12,8 +12,8 @@ Route::middleware([UserBasicAuthMiddleware::class])->group(function () {
     Route::get('/', function () {
         return view('home');
     });
-    Route::post('/pencatatan-usaha', [PencatatanUsahaController::class, 'store'])->name('pencatatan.store');
 });
+Route::post('/pencatatan-usaha', [PencatatanUsahaController::class, 'store'])->name('pencatatan.store');
 
 Route::middleware([AdminBasicAuthMiddleware::class])->group(function () {
     Route::get('/admin', [PencatatanUsahaController::class, 'index'])->name('pencatatan.index');
