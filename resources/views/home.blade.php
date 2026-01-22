@@ -186,33 +186,7 @@
                         <h2 class="font-bold text-sm">Hasil Ground Check</h2>
                     </div>
                     <div class="p-4 space-y-4">
-                        <!-- Nama Usaha (Hasil Cek) -->
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">
-                                Nama Usaha (Hasil Cek)
-                            </label>
 
-                            <input type="text" id="namaUsahaHasil" name="nama_usaha_hasil"
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
-                                readonly>
-
-                            <!-- Radio -->
-                            <div class="flex gap-4 mt-2 text-sm">
-                                <label class="flex items-center gap-1">
-                                    <input type="radio" name="nama_usaha_sesuai" value="1" checked>
-                                    <span>Sesuai</span>
-                                </label>
-
-                                <label class="flex items-center gap-1">
-                                    <input type="radio" name="nama_usaha_sesuai" value="0">
-                                    <span>Tidak sesuai</span>
-                                </label>
-                            </div>
-
-                            <p class="text-xs text-gray-500 mt-1">
-                                Jika tidak sesuai, silakan perbaiki nama usaha
-                            </p>
-                        </div>
 
                         <!-- Keberadaan Usaha -->
                         <div>
@@ -223,106 +197,145 @@
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                                 required>
                                 <option value="">Pilih Status</option>
-                                <option value="tidak_ditemukan">Tidak Ditemukan</option>
                                 <option value="ditemukan">Ditemukan</option>
+                                <option value="tidak_ditemukan">Tidak Ditemukan</option>
                                 <option value="tutup">Tutup</option>
                                 <option value="ganda">Ganda</option>
                             </select>
-
                         </div>
 
-                        <!-- Input Alamat Baru -->
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">Alamat (Hasil Cek) <span
-                                    class="text-red-500">*</span></label>
-                            <textarea
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                                id="alamatBaru" name="alamat" rows="2" placeholder="Masukkan alamat sesuai hasil cek lapangan" required></textarea>
-                        </div>
-
-                        <!-- RT dan RW -->
-                        <div class="grid grid-cols-2 gap-3">
+                        <div id="field-fisik" class="space-y-4">
+                            <!-- Nama Usaha (Hasil Cek) -->
                             <div>
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">RW/Dusun <span
-                                        class="text-red-500">*</span></label>
-                                <input type="text"
-                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                    id="rw" name="rw" placeholder="Contoh: 001" required>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                    Nama Usaha (Hasil Cek)
+                                </label>
+
+                                <input type="text" id="namaUsahaHasil" name="nama_usaha_hasil"
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                                    readonly>
+
+                                <!-- Radio -->
+                                <div class="flex gap-4 mt-2 text-sm">
+                                    <label class="flex items-center gap-1">
+                                        <input type="radio" name="nama_usaha_sesuai" value="1" checked>
+                                        <span>Sesuai</span>
+                                    </label>
+
+                                    <label class="flex items-center gap-1">
+                                        <input type="radio" name="nama_usaha_sesuai" value="0">
+                                        <span>Tidak sesuai</span>
+                                    </label>
+                                </div>
+
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Jika tidak sesuai, silakan perbaiki nama usaha
+                                </p>
                             </div>
+
+                            <!-- Input Alamat Baru -->
                             <div>
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">RT <span
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Alamat (Hasil Cek) <span
                                         class="text-red-500">*</span></label>
-                                <input type="text"
-                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                    id="rt" name="rt" placeholder="Contoh: 002" required>
+                                <textarea
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                                    id="alamatBaru" name="alamat" rows="2" placeholder="Masukkan alamat sesuai hasil cek lapangan"
+                                    data-required></textarea>
                             </div>
-                        </div>
 
-                        <!-- Input Foto -->
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">
-                                Foto Usaha
-                            </label>
-
-                            <!-- Input File Hidden -->
-                            <input type="file" id="foto" name="photo" class="hidden" accept="image/*"
-                                capture="environment">
-
-                            <!-- Tombol Kamera -->
-                            <button type="button" onclick="document.getElementById('foto').click()"
-                                class="w-full py-3 border-2 border-dashed border-primary rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors duration-200">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <i class="fas fa-camera text-primary"></i>
-                                    <span class="text-sm font-medium text-primary">Ambil Foto dengan Kamera</span>
-                                </div>
-                            </button>
-                            <p class="text-xs text-gray-500 mt-1 text-center">Klik tombol di atas untuk membuka kamera</p>
-
-                            <!-- Preview Foto -->
-                            <div class="mt-3 flex justify-center">
-                                <img id="previewFoto"
-                                    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'%3E%3Crect width='200' height='150' fill='%23f3f4f6'/%3E%3Ccircle cx='100' cy='60' r='20' fill='%23d1d5db'/%3E%3Crect x='70' y='90' width='60' height='40' rx='5' fill='%23d1d5db'/%3E%3Ctext x='100' y='140' font-family='Arial' font-size='12' text-anchor='middle' fill='%236b7280'%3EKamera%3C/text%3E%3C/svg%3E"
-                                    alt="Preview Foto"
-                                    class="rounded-lg border border-gray-300 max-w-full h-auto max-h-48 object-cover">
-                            </div>
-                        </div>
-
-                        <!-- Koordinat -->
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-1">
-                                Koordinat
-                            </label>
-
-                            <div class="space-y-2">
-                                <!-- Latitude -->
-                                <div class="flex gap-2">
+                            <!-- RT dan RW -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">RW/Dusun <span
+                                            class="text-red-500">*</span></label>
                                     <input type="text"
-                                        class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                        id="latitude" name="latitude" placeholder="Latitude">
-                                    <button type="button" id="btnGetLocation"
-                                        class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center space-x-1">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>Ambil</span>
-                                    </button>
+                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                        id="rw" name="rw" placeholder="Contoh: 001" data-required>
                                 </div>
-
-                                <!-- Longitude -->
-                                <div class="flex gap-2">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1">RT <span
+                                            class="text-red-500">*</span></label>
                                     <input type="text"
-                                        class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                        id="longitude" name="longitude" placeholder="Longitude">
-                                    <button type="button" id="btnGetLocation2"
-                                        class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center space-x-1">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span>Ambil</span>
-                                    </button>
+                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                        id="rt" name="rt" placeholder="Contoh: 002" data-required>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">Gunakan tombol "Ambil" untuk lokasi otomatis</p>
 
-                            <p id="distanceInfo" class="text-xs text-gray-500 mt-1"></p>
+                            <!-- Input Foto -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                    Foto Usaha
+                                </label>
+
+                                <!-- Input File Hidden -->
+                                <input type="file" id="foto" name="photo" class="hidden" accept="image/*"
+                                    capture="environment">
+
+                                <!-- Tombol Kamera -->
+                                <button type="button" onclick="document.getElementById('foto').click()"
+                                    class="w-full py-3 border-2 border-dashed border-primary rounded-lg bg-orange-50 hover:bg-orange-100 transition-colors duration-200">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <i class="fas fa-camera text-primary"></i>
+                                        <span class="text-sm font-medium text-primary">Ambil Foto dengan Kamera</span>
+                                    </div>
+                                </button>
+                                <p class="text-xs text-gray-500 mt-1 text-center">Klik tombol di atas untuk membuka kamera
+                                </p>
+
+                                <!-- Preview Foto -->
+                                <div class="mt-3 flex justify-center">
+                                    <img id="previewFoto"
+                                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150' viewBox='0 0 200 150'%3E%3Crect width='200' height='150' fill='%23f3f4f6'/%3E%3Ccircle cx='100' cy='60' r='20' fill='%23d1d5db'/%3E%3Crect x='70' y='90' width='60' height='40' rx='5' fill='%23d1d5db'/%3E%3Ctext x='100' y='140' font-family='Arial' font-size='12' text-anchor='middle' fill='%236b7280'%3EKamera%3C/text%3E%3C/svg%3E"
+                                        alt="Preview Foto"
+                                        class="rounded-lg border border-gray-300 max-w-full h-auto max-h-48 object-cover">
+                                </div>
+                            </div>
+
+                            <!-- Koordinat -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">
+                                    Koordinat
+                                </label>
+
+                                <div class="space-y-2">
+                                    <!-- Latitude -->
+                                    <div class="flex gap-2">
+                                        <input type="text"
+                                            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                            id="latitude" name="latitude" placeholder="Latitude">
+                                        <button type="button" id="btnGetLocation"
+                                            class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Ambil</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Longitude -->
+                                    <div class="flex gap-2">
+                                        <input type="text"
+                                            class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                            id="longitude" name="longitude" placeholder="Longitude">
+                                        <button type="button" id="btnGetLocation2"
+                                            class="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>Ambil</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Gunakan tombol "Ambil" untuk lokasi otomatis</p>
+
+                                <p id="distanceInfo" class="text-xs text-gray-500 mt-1"></p>
+
+                            </div>
+
+
+
+
+
 
                         </div>
+
+
 
                         <!-- Nama Petugas -->
                         <div>
@@ -637,5 +650,44 @@
                     reader.readAsDataURL(file);
                 });
             }
+
+
+            const statusSelect = document.getElementById('keberadaan');
+            const fieldFisik = document.getElementById('field-fisik');
+            const fieldInputs = fieldFisik.querySelectorAll('input, textarea, button');
+
+            function toggleFieldFisik(status) {
+                const isDitemukan = status === 'ditemukan';
+
+                if (isDitemukan) {
+                    fieldFisik.classList.remove('hidden');
+
+                    fieldInputs.forEach(el => {
+                        el.disabled = false;
+                        if (el.hasAttribute('data-required')) {
+                            el.setAttribute('required', 'required');
+                        }
+                    });
+
+                } else {
+                    fieldFisik.classList.add('hidden');
+
+                    fieldInputs.forEach(el => {
+                        el.disabled = true;
+                        el.removeAttribute('required');
+
+                        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                            el.value = '';
+                        }
+                    });
+                }
+            }
+
+            statusSelect.addEventListener('change', function() {
+                toggleFieldFisik(this.value);
+            });
+
+            // kondisi awal
+            toggleFieldFisik(statusSelect.value);
         </script>
     @endpush

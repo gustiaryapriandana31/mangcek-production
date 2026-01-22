@@ -17,12 +17,12 @@ class PencatatanUsahaController extends Controller
                 'exists:nama_usaha,kode_nama_usaha',
                 'unique:pencatatan_usaha,kode_nama_usaha'
             ],
-            'nama_usaha_hasil'  => 'required|string',
-            'nama_usaha_sesuai' => 'required|boolean',
+            'nama_usaha_hasil'  => 'nullable|string',
+            'nama_usaha_sesuai' => 'nullable|boolean',
             'status_usaha'    => 'required|in:tidak_ditemukan,ditemukan,tutup,ganda',
-            'alamat'          => 'required|string',
-            'rw'              => 'required|string|max:10',
-            'rt'              => 'required|string|max:10',
+            'alamat'          => 'nullable|string',
+            'rw'              => 'nullable|string|max:10',
+            'rt'              => 'nullable|string|max:10',
             'photo'           => 'nullable|image|max:2048',
             'latitude'        => 'nullable|numeric',
             'longitude'       => 'nullable|numeric',
@@ -34,16 +34,26 @@ class PencatatanUsahaController extends Controller
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('foto-usaha', 'public');
         }
+        $status = $request->status_usaha;
+
+        $data = $request->all();
+
+        if ($status !== 'ditemukan') {
+
+            $data['alamat'] = '-';
+            $data['rt'] = '-';
+            $data['rw'] = '-';
+        }
 
         PencatatanUsaha::create([
             'id'              => Str::uuid(),
             'kode_nama_usaha' => $request->kode_nama_usaha,
-            'nama_usaha_hasil'  => $request->nama_usaha_hasil,
-            'nama_usaha_sesuai' => $request->nama_usaha_sesuai,
+            'nama_usaha_hasil'  => $request->status_usaha === 'ditemukan' ? $request->nama_usaha_hasil : '-',
+            'nama_usaha_sesuai' => $request->status_usaha === 'ditemukan' ? $request->nama_usaha_sesuai : '1',
             'status_usaha'    => $request->status_usaha,
-            'alamat'          => $request->alamat,
-            'rw'              => $request->rw,
-            'rt'              => $request->rt,
+            'alamat'            => $request->status_usaha === 'ditemukan' ? $request->alamat : '-',
+            'rw'                => $request->status_usaha === 'ditemukan' ? $request->rw : '-',
+            'rt'                => $request->status_usaha === 'ditemukan' ? $request->rt : '-',
             'photo_path'      => $photoPath,
             'latitude'        => $request->latitude,
             'longitude'       => $request->longitude,
@@ -93,7 +103,7 @@ class PencatatanUsahaController extends Controller
                     return $row->nama_usaha_hasil ?? '-';
                 })
                 ->editColumn('nama_usaha', function ($row) {
-                    return $row->nama_usaha_text?? '-';
+                    return $row->nama_usaha_text ?? '-';
                 })
                 ->editColumn('kode_nama_usaha', function ($row) {
                     return $row->kode_nama_usaha ?? '<span class="text-gray-500">' . $row->kode_nama_usaha . '</span>';
