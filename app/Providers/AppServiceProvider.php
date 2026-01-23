@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use App\Models\PencatatanUsaha;
+use App\Observers\PencatatanUsahaObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        PencatatanUsaha::observe(PencatatanUsahaObserver::class);
+        
         // Daftarkan route web
         Route::middleware('web')
             ->group(base_path('routes/web.php'));
