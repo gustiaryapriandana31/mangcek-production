@@ -487,11 +487,29 @@
                                 clean(row.longitude),
                                 photoLink,
                                 clean(row.nama_petugas),
-                                new Date(row.created_at).toLocaleDateString('id-ID', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: 'numeric'
-                                })
+                                // new Date(row.created_at).toLocaleDateString('id-ID', {
+                                //     day: '2-digit',
+                                //     month: 'short',
+                                //     year: 'numeric'
+                                // })
+                                (() => {
+                                    const d = new Date(row.created_at);
+
+                                    const tanggal = d.toLocaleDateString('id-ID', {
+                                        day: '2-digit',
+                                        month: '2-digit',
+                                        year: 'numeric'
+                                    });
+
+                                    const jam = d.toLocaleTimeString('id-ID', {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        second: '2-digit'
+                                    });
+
+                                    return `${tanggal} ${jam}`;
+                                })()
+
                             ]);
                         });
 
@@ -681,12 +699,12 @@
                                 }
 
                                 return `
-            <a href="${photoUrl}" target="_blank"
-               class="inline-flex items-center space-x-1 bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 text-xs">
-                <i class="fas fa-eye text-blue-600"></i>
-                <span class="text-blue-600">Lihat</span>
-            </a>
-        `;
+                                    <a href="${photoUrl}" target="_blank"
+                                    class="inline-flex items-center space-x-1 bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 text-xs">
+                                        <i class="fas fa-eye text-blue-600"></i>
+                                        <span class="text-blue-600">Lihat</span>
+                                    </a>
+                                `;
                             }
                         },
 
@@ -700,11 +718,28 @@
                             name: 'created_at',
                             className: 'text-center',
                             render: function(data) {
-                                return new Date(data).toLocaleDateString('id-ID', {
+                                if (!data) return '-';
+
+                                const date = new Date(data);
+
+                                const tanggal = date.toLocaleDateString('id-ID', {
                                     day: '2-digit',
                                     month: 'short',
                                     year: 'numeric'
                                 });
+
+                                const jam = date.toLocaleTimeString('id-ID', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    second: '2-digit'
+                                });
+
+                                return `
+                                    <div class="text-xs leading-tight text-center">
+                                        <div>${tanggal}</div>
+                                        <div class="text-gray-500">Pukul ${jam} WIB</div>
+                                    </div>
+                                `;
                             }
                         },
                         {
@@ -792,7 +827,7 @@
 
                                 $('#current_photo').html(`
                             <a href="${photoUrl}" target="_blank" 
-                               class="inline-flex items-center space-x-1 bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 text-xs">
+                                class="inline-flex items-center space-x-1 bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 text-xs">
                                 <i class="fas fa-eye text-blue-600"></i>
                                 <span class="text-blue-600">Lihat Foto</span>
                             </a>
