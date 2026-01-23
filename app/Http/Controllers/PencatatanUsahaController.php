@@ -49,7 +49,8 @@ class PencatatanUsahaController extends Controller
             'id'              => Str::uuid(),
             'kode_nama_usaha' => $request->kode_nama_usaha,
             'nama_usaha_hasil'  => $request->status_usaha === 'ditemukan' ? $request->nama_usaha_hasil : '-',
-            'nama_usaha_sesuai' => $request->status_usaha === 'ditemukan' ? $request->nama_usaha_sesuai : '1',
+            'nama_usaha_sesuai' => $request->status_usaha === 'ditemukan' ? ($request->nama_usaha_sesuai ?? 1) : 1,
+
             'status_usaha'    => $request->status_usaha,
             'alamat'            => $request->status_usaha === 'ditemukan' ? $request->alamat : '-',
             'rw'                => $request->status_usaha === 'ditemukan' ? $request->rw : '-',

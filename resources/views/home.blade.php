@@ -250,7 +250,7 @@
                                             class="text-red-500">*</span></label>
                                     <input type="text"
                                         class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                        id="rw" name="rw" placeholder="Contoh: 001" data-required>
+                                        id="rw" name="rw" placeholder="Contoh: 001, Dusun 01" data-required>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-700 mb-1">RT <span
@@ -497,13 +497,16 @@
                    SAAT USAHA DIPILIH
                 ========================== */
                 $('#usahaSelect').on('select2:select', function(e) {
+
+                    syncNamaUsahaReadonly();
+
                     const data = e.params.data; // ⬅️ AMBIL DATA SELECT2
                     const id = data.id;
 
                     // isi nama usaha hasil (dari select2 text)
-                    $('#namaUsahaHasil')
-                        .val(data.text)
-                        .prop('readonly', true);
+                    $('#namaUsahaHasil').val(data.text);
+                    syncNamaUsahaReadonly();
+
 
                     // default: SESUAI
                     $('input[name="nama_usaha_sesuai"][value="1"]').prop('checked', true);
@@ -522,18 +525,8 @@
                 });
 
 
-                $('input[name="nama_usaha_sesuai"]').on('change', function() {
-                    if (this.value === '0') {
-                        $('#namaUsahaHasil')
-                            .prop('readonly', false)
-                            .removeClass('bg-gray-100')
-                            .addClass('bg-white');
-                    } else {
-                        $('#namaUsahaHasil')
-                            .prop('readonly', true)
-                            .addClass('bg-gray-100');
-                    }
-                });
+                $('input[name="nama_usaha_sesuai"]').on('change', syncNamaUsahaReadonly);
+
 
 
                 function resetUsaha() {
@@ -654,7 +647,10 @@
 
             const statusSelect = document.getElementById('keberadaan');
             const fieldFisik = document.getElementById('field-fisik');
-            const fieldInputs = fieldFisik.querySelectorAll('input, textarea, button');
+            const fieldInputs = fieldFisik.querySelectorAll(
+                'input:not([name="nama_usaha_sesuai"]), textarea, button'
+            );
+
 
             function toggleFieldFisik(status) {
                 const isDitemukan = status === 'ditemukan';
@@ -668,6 +664,14 @@
                             el.setAttribute('required', 'required');
                         }
                     });
+
+                    syncNamaUsahaReadonly();
+
+                    const selectedData = $('#usahaSelect').select2('data');
+                    if (selectedData.length > 0) {
+                        $('#namaUsahaHasil').val(selectedData[0].text);
+
+                    }
 
                 } else {
                     fieldFisik.classList.add('hidden');
@@ -689,5 +693,20 @@
 
             // kondisi awal
             toggleFieldFisik(statusSelect.value);
+
+            function syncNamaUsahaReadonly() {
+                const sesuai = $('input[name="nama_usaha_sesuai"]:checked').val();
+
+                if (sesuai === '0') {
+                    $('#namaUsahaHasil')
+                        .prop('readonly', false)
+                        .removeClass('bg-gray-100')
+                        .addClass('bg-white');
+                } else {
+                    $('#namaUsahaHasil')
+                        .prop('readonly', true)
+                        .addClass('bg-gray-100');
+                }
+            }
         </script>
     @endpush

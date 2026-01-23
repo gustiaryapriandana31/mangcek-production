@@ -610,7 +610,7 @@
                             className: 'text-center',
                             render: function(data) {
                                 const statusMap = {
-                                    'tidak_ditemukan': '<span class="status-badge status-tidak_ditemukan">Tdk Ditemukan</span>',
+                                    'tidak_ditemukan': '<span class="status-badge status-tidak_ditemukan">Tidak Ditemukan</span>',
                                     'ditemukan': '<span class="status-badge status-ditemukan">Ditemukan</span>',
                                     'tutup': '<span class="status-badge status-tutup">Tutup</span>',
                                     'ganda': '<span class="status-badge status-ganda">Ganda</span>'
