@@ -21,7 +21,8 @@ Route::middleware([AdminBasicAuthMiddleware::class])->group(function () {
     Route::put('/pencatatan-usaha/{id}', [PencatatanUsahaController::class, 'update'])->name('pencatatan.update');
     Route::delete('/pencatatan-usaha/{id}', [PencatatanUsahaController::class, 'destroy'])->name('pencatatan.destroy');
     Route::get('/dashboard/groundcheck', [PencatatanUsahaController::class, 'dashboardStats']);
-
+    Route::get('/dashboard/rekap-kecamatan', [PencatatanUsahaController::class, 'rekapKecamatan']);
+    Route::get('/dashboard/rekap-desa',  [PencatatanUsahaController::class, 'rekapDesa']);
 });
 
 

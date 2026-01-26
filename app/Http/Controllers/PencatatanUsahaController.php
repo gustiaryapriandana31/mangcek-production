@@ -267,4 +267,55 @@ class PencatatanUsahaController extends Controller
             'percentage' => $percentage
         ]);
     }
+    public function rekapKecamatan()
+    {
+        $data = DB::table('nama_usaha as nu')
+            ->leftJoin('pencatatan_usaha as pu', 'pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha')
+            ->join('kecamatan as k', 'k.kode_kecamatan', '=', 'nu.kode_kecamatan')
+            ->select(
+                'k.kode_kecamatan',
+                'k.nama_kecamatan',
+                DB::raw('COUNT(nu.kode_nama_usaha) as total'),
+                DB::raw('COUNT(pu.kode_nama_usaha) as checked'),
+
+                // Tambahkan semua 4 status
+                DB::raw("SUM(pu.status_usaha = 'ditemukan') as ditemukan"),
+                DB::raw("SUM(pu.status_usaha = 'tidak_ditemukan') as tidak_ditemukan"),
+                DB::raw("SUM(pu.status_usaha = 'tutup') as tutup"),
+                DB::raw("SUM(pu.status_usaha = 'ganda') as ganda") // TAMBAH INI
+            )
+            ->groupBy('k.kode_kecamatan', 'k.nama_kecamatan')
+            ->orderBy('k.nama_kecamatan')
+            ->get();
+
+        return response()->json($data);
+    }
+
+
+    public function rekapDesa(Request $request)
+    {
+        $kodeKecamatan = $request->kode_kecamatan;
+
+        $data = DB::table('desa as d')
+            ->join('nama_usaha as nu', 'nu.kode_desa', '=', 'd.kode_desa')
+            ->leftJoin('pencatatan_usaha as pu', 'pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha')
+            ->where('d.kode_kecamatan', $kodeKecamatan)
+            ->select(
+                'd.kode_desa',
+                'd.nama_desa',
+                DB::raw('COUNT(nu.kode_nama_usaha) as total'),
+                DB::raw('COUNT(pu.kode_nama_usaha) as checked'),
+
+                // Tambahkan semua 4 status untuk desa
+                DB::raw("SUM(pu.status_usaha = 'ditemukan') as ditemukan"),
+                DB::raw("SUM(pu.status_usaha = 'tidak_ditemukan') as tidak_ditemukan"),
+                DB::raw("SUM(pu.status_usaha = 'tutup') as tutup"),
+                DB::raw("SUM(pu.status_usaha = 'ganda') as ganda") // TAMBAH INI
+            )
+            ->groupBy('d.kode_desa', 'd.nama_desa')
+            ->orderBy('d.nama_desa')
+            ->get();
+
+        return response()->json($data);
+    }
 }

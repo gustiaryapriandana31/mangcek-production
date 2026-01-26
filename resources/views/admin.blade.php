@@ -181,6 +181,75 @@
             </div>
         </div>
 
+        {{-- Tabel Tabulasi --}}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-base font-bold text-gray-800">Rekapitulasi per Kecamatan</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Detail statistik ground check per wilayah</p>
+                </div>
+                <div class="text-xs text-gray-500 px-2 py-1 bg-gray-50 rounded">
+                    <i class="fas fa-table mr-1"></i>
+                    Tabulasi Data
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table id="tbl-kecamatan" class="w-full text-sm">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr class="text-left">
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">#</th>
+                            <th class="px-4 py-3 font-medium text-gray-700">Kecamatan</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-store mr-1 text-xs"></i>
+                                    <span>Total</span>
+                                </div>
+                            </th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-check-circle mr-1 text-xs text-green-600"></i>
+                                    <span>GC</span>
+                                </div>
+                            </th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-chart-line mr-1 text-xs" style="color: #f79039"></i>
+                                    <span>%</span>
+                                </div>
+                            </th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-check mr-1 text-xs text-blue-600"></i>
+                                    <span>Ditemukan</span>
+                                </div>
+                            </th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-times mr-1 text-xs text-red-600"></i>
+                                    <span>Tdk</span>
+                                </div>
+                            </th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-door-closed mr-1 text-xs text-yellow-600"></i>
+                                    <span>Tutup</span>
+                                </div>
+                            </th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-700">
+                                <div class="flex items-center justify-center">
+                                    <i class="fas fa-copy mr-1 text-xs text-purple-600"></i>
+                                    <span>Ganda</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white"></tbody>
+                </table>
+            </div>
+        </div>
+
+
 
         <!-- Card untuk tabel -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
@@ -434,6 +503,9 @@
             #unchecked_bar,
             #percentage_bar {
                 transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                background: linear-gradient(90deg, #fbbf24, #f79039) !important;
+                opacity: 0.9;
+                /* Kurangi opacity sedikit */
             }
 
             /* Card hover effects */
@@ -442,8 +514,10 @@
             }
 
             .bg-gradient-to-br:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: translateY(-1px);
+                /* Kurangi efek hover */
+                box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+                /* Shadow lebih soft */
             }
 
             /* Animation for numbers */
@@ -554,6 +628,123 @@
                 background: #f79039;
                 color: white !important;
                 border-color: #f79039;
+            }
+
+            /* Tabulasi table styling */
+            #tbl-kecamatan {
+                border-collapse: separate;
+                border-spacing: 0;
+            }
+
+            #tbl-kecamatan th {
+                border-bottom: 2px solid #e5e7eb;
+                font-weight: 600;
+                text-transform: none;
+                letter-spacing: normal;
+            }
+
+            #tbl-kecamatan td {
+                border-bottom: 1px solid #f3f4f6;
+                vertical-align: middle;
+            }
+
+            #tbl-kecamatan tbody tr {
+                transition: background-color 0.2s ease;
+            }
+
+            #tbl-kecamatan tbody tr:hover {
+                background-color: #f9fafb;
+            }
+
+            /* Toggle button styling */
+            .toggle {
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                transition: all 0.2s;
+                background-color: #f3f4f6;
+                color: #6b7280;
+                font-size: 14px;
+            }
+
+            .toggle:hover {
+                background-color: #f79039;
+                color: white;
+                transform: scale(1.05);
+            }
+
+            /* Detail row styling */
+            .detail-row td {
+                background-color: #f8fafc !important;
+                border-left: 3px solid #e5e7eb !important;
+                /* Warna gray 200 - lebih clean */
+            }
+
+            /* Sub-table styling */
+            #tbl-kecamatan table table {
+                margin: 0;
+                width: 100%;
+                border: none;
+            }
+
+            #tbl-kecamatan table table th {
+                background-color: #f1f5f9;
+                font-weight: 500;
+                padding: 8px 12px;
+            }
+
+            #tbl-kecamatan table table td {
+                padding: 8px 12px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            /* Progress percentage colors */
+            .percentage-high {
+                color: #10b981;
+                font-weight: 600;
+            }
+
+            .percentage-medium {
+                color: #f59e0b;
+                font-weight: 600;
+            }
+
+            .percentage-low {
+                color: #ef4444;
+                font-weight: 600;
+            }
+
+            /* Row colors for checked status */
+            .row-highlight {
+                background-color: #f0fdf4;
+            }
+
+            /* Garis pemisah yang sangat clean */
+            .clean-divider {
+                border-color: #f1f5f9 !important;
+            }
+
+            /* Untuk tabel data utama */
+            #dataTable th,
+            #dataTable td {
+                border-color: #f3f4f6 !important;
+                /* Gray 100 */
+            }
+
+            /* Untuk tabel tabulasi */
+            #tbl-kecamatan th,
+            #tbl-kecamatan td {
+                border-color: #f1f5f9 !important;
+                /* Gray 100 yang lebih soft */
+            }
+
+            /* Hover effect yang lebih subtle */
+            #tbl-kecamatan tbody tr:hover {
+                background-color: #f8fafc !important;
+                /* Sky 50 - sangat subtle */
             }
         </style>
     @endpush
@@ -764,8 +955,7 @@
 
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
-                loadDashboardStats();
-                // init datatables
+                // init datatables all data
                 var table = $('#dataTable').DataTable({
                     processing: true,
                     serverSide: true,
@@ -1240,6 +1430,13 @@
                     loadDashboardStats();
                 });
 
+                // load dashboard
+                loadDashboardStats();
+
+                // load tabulasi data
+                loadTabulasiData();
+
+
             });
 
             function updateProgressBars(checked, unchecked, percentage) {
@@ -1312,6 +1509,220 @@
                 }).fail(function() {
                     console.error('Gagal memuat statistik dashboard');
                 });
+            }
+
+
+            function loadTabulasiData() {
+                fetch('/dashboard/rekap-kecamatan')
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error(`HTTP error! status: ${r.status}`);
+                        }
+                        return r.json();
+                    })
+                    .then(data => {
+                        console.log('Data tabulasi:', data); // Debug: cek apakah data diterima
+
+                        const tbody = document.querySelector('#tbl-kecamatan tbody');
+                        if (!tbody) {
+                            console.error('TBody tidak ditemukan!');
+                            return;
+                        }
+
+                        tbody.innerHTML = ''; // Clear existing data
+
+                        if (!data || data.length === 0) {
+                            tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                            <i class="fas fa-database text-2xl mb-2 block"></i>
+                            Tidak ada data yang tersedia
+                        </td>
+                    </tr>
+                `;
+                            return;
+                        }
+
+                        data.forEach((row, index) => {
+                            let persen = row.total > 0 ?
+                                ((row.checked / row.total) * 100).toFixed(1) :
+                                0;
+
+                            // Determine percentage color
+                            let percentageClass = 'text-gray-700';
+                            if (persen >= 80) percentageClass = 'percentage-high';
+                            else if (persen >= 50) percentageClass = 'percentage-medium';
+                            else percentageClass = 'percentage-low';
+
+                            // Determine row highlight
+                            let rowClass = '';
+                            if (persen >= 80) rowClass = 'row-highlight';
+
+                            // GANTI bagian HTML generation untuk tabel kecamatan:
+                            tbody.insertAdjacentHTML('beforeend', `
+    <tr data-kec="${row.kode_kecamatan}" class="${rowClass} hover:bg-gray-50 transition-colors">
+        <td class="px-4 py-3">
+            <div class="toggle cursor-pointer w-6 h-6 flex items-center justify-center mx-auto rounded-md bg-gray-100 hover:bg-primary hover:text-white transition-colors">
+                <i class="fas fa-plus text-xs"></i>
+            </div>
+        </td>
+        <td class="px-4 py-3 font-medium text-gray-800">${row.nama_kecamatan || '-'}</td>
+        <td class="px-4 py-3 text-center font-semibold">${(row.total || 0).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3 text-center font-semibold text-green-700">${(row.checked || 0).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3 text-center font-bold ${percentageClass}">${persen}%</td>
+        <td class="px-4 py-3 text-center text-blue-700">${(row.ditemukan || 0).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3 text-center text-red-700">${(row.tidak_ditemukan || 0).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3 text-center text-yellow-700">${(row.tutup || 0).toLocaleString('id-ID')}</td>
+        <td class="px-4 py-3 text-center text-purple-700">${(row.ganda || 0).toLocaleString('id-ID')}</td>
+    </tr>
+    <tr class="detail-row hidden" id="detail-${row.kode_kecamatan}">
+        <td colspan="9" class="px-4 py-4">
+            <div class="flex items-center mb-3">
+                <div class="p-2 rounded-lg mr-2" style="background-color: rgba(247, 144, 57, 0.1)">
+                    <i class="fas fa-map-marker-alt text-sm" style="color: #f79039"></i>
+                </div>
+                <h4 class="text-sm font-semibold text-gray-800">Detail per Desa: ${row.nama_kecamatan || '-'}</h4>
+            </div>
+            <div class="pl-10">
+                <div class="text-gray-400 text-sm">
+                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                    Memuat data desa...
+                </div>
+            </div>
+        </td>
+    </tr>
+`);
+                        });
+
+                        // Initialize event listeners setelah data dimuat
+                        initTabulasiEvents();
+                    })
+                    .catch(error => {
+                        console.error('Error loading tabulasi data:', error);
+                        const tbody = document.querySelector('#tbl-kecamatan tbody');
+                        if (tbody) {
+                            tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-4 py-8 text-center text-red-500">
+                            <i class="fas fa-exclamation-triangle text-2xl mb-2 block"></i>
+                            Gagal memuat data. Silakan refresh halaman.
+                            <p class="text-xs text-gray-500 mt-2">${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+                        }
+                    });
+            }
+
+            function initTabulasiEvents() {
+                // Event delegation untuk toggle
+                document.querySelector('#tbl-kecamatan').addEventListener('click', function(e) {
+                    const toggleDiv = e.target.closest('.toggle');
+                    if (!toggleDiv) return;
+
+                    const icon = toggleDiv.querySelector('i');
+                    const tr = toggleDiv.closest('tr');
+                    const kode = tr.dataset.kec;
+                    const detail = document.getElementById(`detail-${kode}`);
+
+                    if (!detail) return;
+
+                    // Toggle icon dan visibility
+                    if (detail.classList.contains('hidden')) {
+                        icon.className = 'fas fa-minus text-xs';
+                        detail.classList.remove('hidden');
+
+                        // Load data jika belum dimuat
+                        if (!detail.dataset.loaded) {
+                            loadDesaData(kode, detail);
+                        }
+                    } else {
+                        icon.className = 'fas fa-plus text-xs';
+                        detail.classList.add('hidden');
+                    }
+                });
+            }
+
+            function loadDesaData(kodeKecamatan, detailElement) {
+                const loadingDiv = detailElement.querySelector('.pl-10');
+
+                fetch(`/dashboard/rekap-desa?kode_kecamatan=${kodeKecamatan}`)
+                    .then(r => {
+                        if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                        return r.json();
+                    })
+                    .then(rows => {
+                        if (!rows || rows.length === 0) {
+                            loadingDiv.innerHTML = `
+                    <div class="text-gray-500 text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Tidak ada data desa untuk kecamatan ini
+                    </div>
+                `;
+                            return;
+                        }
+
+                        let html = `
+                <div class="overflow-x-auto rounded-lg border border-gray-100 shadow-sm">
+                    <table class="w-full text-xs">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left font-medium text-gray-700">Desa/Kelurahan</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">Total</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">GC</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">%</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">
+                                    <i class="fas fa-check text-blue-600 mr-1"></i>Ditemukan
+                                </th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">
+                                    <i class="fas fa-times text-red-600 mr-1"></i>Tdk
+                                </th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">
+                                    <i class="fas fa-door-closed text-yellow-600 mr-1"></i>Tutup
+                                </th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">
+                                    <i class="fas fa-copy text-purple-600 mr-1"></i>Ganda
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+            `;
+
+                        rows.forEach(d => {
+                            let p = d.total > 0 ? ((d.checked / d.total) * 100).toFixed(1) : 0;
+                            let progressColor = p >= 80 ? 'text-green-600' :
+                                p >= 50 ? 'text-yellow-600' : 'text-red-600';
+
+                            let progressBarColor = p >= 80 ? 'bg-green-500' :
+                                p >= 50 ? 'bg-yellow-500' : 'bg-red-500';
+
+                            html += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2 font-medium">${d.nama_desa || '-'}</td>
+                        <td class="px-4 py-2 text-center">${(d.total || 0).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2 text-center font-semibold text-green-700">${(d.checked || 0).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2 text-center font-bold ${progressColor}">${p}%</td>
+                        <td class="px-4 py-2 text-center text-blue-700">${(d.ditemukan || 0).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2 text-center text-red-700">${(d.tidak_ditemukan || 0).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2 text-center text-yellow-700">${(d.tutup || 0).toLocaleString('id-ID')}</td>
+                        <td class="px-4 py-2 text-center text-purple-700">${(d.ganda || 0).toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+                        });
+
+                        html += `</tbody></table></div>`;
+                        loadingDiv.innerHTML = html;
+                        detailElement.dataset.loaded = true;
+                    })
+                    .catch(error => {
+                        console.error('Error loading desa data:', error);
+                        loadingDiv.innerHTML = `
+                <div class="text-red-500 text-sm">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    Gagal memuat data desa
+                </div>
+            `;
+                    });
             }
         </script>
     @endpush
