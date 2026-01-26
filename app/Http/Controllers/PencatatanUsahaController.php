@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\PencatatanUsaha;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 use DataTables;
 
 class PencatatanUsahaController extends Controller
@@ -63,6 +64,8 @@ class PencatatanUsahaController extends Controller
             'longitude'       => $request->longitude,
             'nama_petugas'    => $request->nama_petugas,
         ]);
+
+        Cache::forget('rekap_kecamatan_dashboard');
 
         return redirect()->back()->with('success', 'Data berhasil disimpan!');
     }
@@ -195,6 +198,7 @@ class PencatatanUsahaController extends Controller
             'nama_petugas',
         ]));
 
+        Cache::forget('rekap_kecamatan_dashboard');
         return redirect()->back()->with('success', 'Data berhasil diupdate!');
     }
 
@@ -269,24 +273,42 @@ class PencatatanUsahaController extends Controller
     }
     public function rekapKecamatan()
     {
-        $data = DB::table('nama_usaha as nu')
-            ->leftJoin('pencatatan_usaha as pu', 'pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha')
-            ->join('kecamatan as k', 'k.kode_kecamatan', '=', 'nu.kode_kecamatan')
-            ->select(
-                'k.kode_kecamatan',
-                'k.nama_kecamatan',
-                DB::raw('COUNT(nu.kode_nama_usaha) as total'),
-                DB::raw('COUNT(pu.kode_nama_usaha) as checked'),
+        $data = Cache::remember(
+            'rekap_kecamatan_dashboard', // KEY CACHE
+            300, // 5 menit
+            function () {
 
-                // Tambahkan semua 4 status
-                DB::raw("SUM(pu.status_usaha = 'ditemukan') as ditemukan"),
-                DB::raw("SUM(pu.status_usaha = 'tidak_ditemukan') as tidak_ditemukan"),
-                DB::raw("SUM(pu.status_usaha = 'tutup') as tutup"),
-                DB::raw("SUM(pu.status_usaha = 'ganda') as ganda") // TAMBAH INI
-            )
-            ->groupBy('k.kode_kecamatan', 'k.nama_kecamatan')
-            ->orderBy('k.nama_kecamatan')
-            ->get();
+                $puAgg = DB::table('pencatatan_usaha')
+                    ->select(
+                        'kode_nama_usaha',
+                        DB::raw("SUM(status_usaha = 'ditemukan') as ditemukan"),
+                        DB::raw("SUM(status_usaha = 'tidak_ditemukan') as tidak_ditemukan"),
+                        DB::raw("SUM(status_usaha = 'tutup') as tutup"),
+                        DB::raw("SUM(status_usaha = 'ganda') as ganda"),
+                        DB::raw("COUNT(*) as checked")
+                    )
+                    ->groupBy('kode_nama_usaha');
+
+                return DB::table('nama_usaha as nu')
+                    ->join('kecamatan as k', 'k.kode_kecamatan', '=', 'nu.kode_kecamatan')
+                    ->leftJoinSub($puAgg, 'pu', function ($join) {
+                        $join->on('pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha');
+                    })
+                    ->select(
+                        'k.kode_kecamatan',
+                        'k.nama_kecamatan',
+                        DB::raw('COUNT(nu.kode_nama_usaha) as total'),
+                        DB::raw('SUM(COALESCE(pu.checked,0)) as checked'),
+                        DB::raw('SUM(COALESCE(pu.ditemukan,0)) as ditemukan'),
+                        DB::raw('SUM(COALESCE(pu.tidak_ditemukan,0)) as tidak_ditemukan'),
+                        DB::raw('SUM(COALESCE(pu.tutup,0)) as tutup'),
+                        DB::raw('SUM(COALESCE(pu.ganda,0)) as ganda')
+                    )
+                    ->groupBy('k.kode_kecamatan', 'k.nama_kecamatan')
+                    ->orderBy('k.nama_kecamatan')
+                    ->get();
+            }
+        );
 
         return response()->json($data);
     }
@@ -296,21 +318,32 @@ class PencatatanUsahaController extends Controller
     {
         $kodeKecamatan = $request->kode_kecamatan;
 
+        $puAgg = DB::table('pencatatan_usaha')
+            ->select(
+                'kode_nama_usaha',
+                DB::raw("SUM(status_usaha = 'ditemukan') as ditemukan"),
+                DB::raw("SUM(status_usaha = 'tidak_ditemukan') as tidak_ditemukan"),
+                DB::raw("SUM(status_usaha = 'tutup') as tutup"),
+                DB::raw("SUM(status_usaha = 'ganda') as ganda"),
+                DB::raw("COUNT(*) as checked")
+            )
+            ->groupBy('kode_nama_usaha');
+
         $data = DB::table('desa as d')
             ->join('nama_usaha as nu', 'nu.kode_desa', '=', 'd.kode_desa')
-            ->leftJoin('pencatatan_usaha as pu', 'pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha')
+            ->leftJoinSub($puAgg, 'pu', function ($join) {
+                $join->on('pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha');
+            })
             ->where('d.kode_kecamatan', $kodeKecamatan)
             ->select(
                 'd.kode_desa',
                 'd.nama_desa',
                 DB::raw('COUNT(nu.kode_nama_usaha) as total'),
-                DB::raw('COUNT(pu.kode_nama_usaha) as checked'),
-
-                // Tambahkan semua 4 status untuk desa
-                DB::raw("SUM(pu.status_usaha = 'ditemukan') as ditemukan"),
-                DB::raw("SUM(pu.status_usaha = 'tidak_ditemukan') as tidak_ditemukan"),
-                DB::raw("SUM(pu.status_usaha = 'tutup') as tutup"),
-                DB::raw("SUM(pu.status_usaha = 'ganda') as ganda") // TAMBAH INI
+                DB::raw('SUM(COALESCE(pu.checked,0)) as checked'),
+                DB::raw('SUM(COALESCE(pu.ditemukan,0)) as ditemukan'),
+                DB::raw('SUM(COALESCE(pu.tidak_ditemukan,0)) as tidak_ditemukan'),
+                DB::raw('SUM(COALESCE(pu.tutup,0)) as tutup'),
+                DB::raw('SUM(COALESCE(pu.ganda,0)) as ganda')
             )
             ->groupBy('d.kode_desa', 'd.nama_desa')
             ->orderBy('d.nama_desa')

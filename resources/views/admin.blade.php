@@ -126,7 +126,7 @@
                         </span>
                     </div>
                     <div class="mb-1">
-                        <p class="text-xs text-green-600 mb-1">Sudah Dicek</p>
+                        <p class="text-xs text-green-600 mb-1">Sudah Diground check</p>
                         <p id="checked_data" class="text-2xl font-bold text-green-700">0</p>
                     </div>
                     <div class="h-1 w-full bg-green-200 rounded-full overflow-hidden">
@@ -146,7 +146,7 @@
                         </span>
                     </div>
                     <div class="mb-1">
-                        <p class="text-xs text-red-600 mb-1">Belum Dicek</p>
+                        <p class="text-xs text-red-600 mb-1">Belum Diground check</p>
                         <p id="unchecked_data" class="text-2xl font-bold text-red-700">0</p>
                     </div>
                     <div class="h-1 w-full bg-red-200 rounded-full overflow-hidden">
@@ -209,7 +209,7 @@
                             <th class="px-4 py-3 text-center font-medium text-gray-700">
                                 <div class="flex items-center justify-center">
                                     <i class="fas fa-check-circle mr-1 text-xs text-green-600"></i>
-                                    <span>GC</span>
+                                    <span> Sudah GC</span>
                                 </div>
                             </th>
                             <th class="px-4 py-3 text-center font-medium text-gray-700">
@@ -227,7 +227,7 @@
                             <th class="px-4 py-3 text-center font-medium text-gray-700">
                                 <div class="flex items-center justify-center">
                                     <i class="fas fa-times mr-1 text-xs text-red-600"></i>
-                                    <span>Tdk</span>
+                                    <span>Tidak</span>
                                 </div>
                             </th>
                             <th class="px-4 py-3 text-center font-medium text-gray-700">
@@ -760,6 +760,9 @@
                 kode_desa: '',
                 kode_nama_usaha: ''
             };
+
+            let tabulasiEventInitialized = false;
+
             // File name preview
             function previewFileName(input) {
                 const fileNameDiv = document.getElementById('fileName');
@@ -956,12 +959,13 @@
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
 
-                // load dashboard
                 loadDashboardStats();
 
-                // load tabulasi data
-                loadTabulasiData();
-                
+                setTimeout(() => {
+                    loadTabulasiData();
+                }, 300);
+
+
                 // init datatables all data
                 var table = $('#dataTable').DataTable({
                     processing: true,
@@ -1520,7 +1524,7 @@
                         return r.json();
                     })
                     .then(data => {
-                        console.log('Data tabulasi:', data); // Debug: cek apakah data diterima
+                        console.log('Data tabulasi:', data);
 
                         const tbody = document.querySelector('#tbl-kecamatan tbody');
                         if (!tbody) {
@@ -1528,7 +1532,15 @@
                             return;
                         }
 
-                        tbody.innerHTML = ''; // Clear existing data
+                        // loading state ringan
+                        tbody.innerHTML = `
+                            <tr>
+                            <td colspan="9" class="px-4 py-6 text-center text-gray-400">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                Memuat tabulasi kecamatan...
+                            </td>
+                            </tr>
+                            `;
 
                         if (!data || data.length === 0) {
                             tbody.innerHTML = `
@@ -1542,58 +1554,64 @@
                             return;
                         }
 
-                        data.forEach((row, index) => {
+                        // 🔥 BUFFER HTML (INI INTI OPTIMASI)
+                        let html = '';
+
+                        data.forEach((row) => {
                             let persen = row.total > 0 ?
                                 ((row.checked / row.total) * 100).toFixed(1) :
                                 0;
 
-                            // Determine percentage color
                             let percentageClass = 'text-gray-700';
                             if (persen >= 80) percentageClass = 'percentage-high';
                             else if (persen >= 50) percentageClass = 'percentage-medium';
                             else percentageClass = 'percentage-low';
 
-                            // Determine row highlight
                             let rowClass = '';
                             if (persen >= 80) rowClass = 'row-highlight';
 
-                            // GANTI bagian HTML generation untuk tabel kecamatan:
-                            tbody.insertAdjacentHTML('beforeend', `
-    <tr data-kec="${row.kode_kecamatan}" class="${rowClass} hover:bg-gray-50 transition-colors">
-        <td class="px-4 py-3">
-            <div class="toggle cursor-pointer w-6 h-6 flex items-center justify-center mx-auto rounded-md bg-gray-100 hover:bg-primary hover:text-white transition-colors">
-                <i class="fas fa-plus text-xs"></i>
+                            // ❗ HTML DI BAWAH TIDAK DIUBAH SAMA SEKALI
+                            html += `
+<tr data-kec="${row.kode_kecamatan}" class="${rowClass} hover:bg-gray-50 transition-colors">
+    <td class="px-4 py-3">
+        <div class="toggle cursor-pointer w-6 h-6 flex items-center justify-center mx-auto rounded-md bg-gray-100 hover:bg-primary hover:text-white transition-colors">
+            <i class="fas fa-plus text-xs"></i>
+        </div>
+    </td>
+    <td class="px-4 py-3 font-medium text-gray-800">${row.nama_kecamatan || '-'}</td>
+    <td class="px-4 py-3 text-center font-semibold">${(row.total || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-semibold text-green-700">${(row.checked || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-bold ${percentageClass}">${persen}%</td>
+    <td class="px-4 py-3 text-center text-blue-700">${(row.ditemukan || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center text-red-700">${(row.tidak_ditemukan || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center text-yellow-700">${(row.tutup || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center text-purple-700">${(row.ganda || 0).toLocaleString('id-ID')}</td>
+</tr>
+<tr class="detail-row hidden" id="detail-${row.kode_kecamatan}">
+    <td colspan="9" class="px-4 py-4">
+        <div class="flex items-center mb-3">
+            <div class="p-2 rounded-lg mr-2" style="background-color: rgba(247, 144, 57, 0.1)">
+                <i class="fas fa-map-marker-alt text-sm" style="color: #f79039"></i>
             </div>
-        </td>
-        <td class="px-4 py-3 font-medium text-gray-800">${row.nama_kecamatan || '-'}</td>
-        <td class="px-4 py-3 text-center font-semibold">${(row.total || 0).toLocaleString('id-ID')}</td>
-        <td class="px-4 py-3 text-center font-semibold text-green-700">${(row.checked || 0).toLocaleString('id-ID')}</td>
-        <td class="px-4 py-3 text-center font-bold ${percentageClass}">${persen}%</td>
-        <td class="px-4 py-3 text-center text-blue-700">${(row.ditemukan || 0).toLocaleString('id-ID')}</td>
-        <td class="px-4 py-3 text-center text-red-700">${(row.tidak_ditemukan || 0).toLocaleString('id-ID')}</td>
-        <td class="px-4 py-3 text-center text-yellow-700">${(row.tutup || 0).toLocaleString('id-ID')}</td>
-        <td class="px-4 py-3 text-center text-purple-700">${(row.ganda || 0).toLocaleString('id-ID')}</td>
-    </tr>
-    <tr class="detail-row hidden" id="detail-${row.kode_kecamatan}">
-        <td colspan="9" class="px-4 py-4">
-            <div class="flex items-center mb-3">
-                <div class="p-2 rounded-lg mr-2" style="background-color: rgba(247, 144, 57, 0.1)">
-                    <i class="fas fa-map-marker-alt text-sm" style="color: #f79039"></i>
-                </div>
-                <h4 class="text-sm font-semibold text-gray-800">Detail per Desa: ${row.nama_kecamatan || '-'}</h4>
+            <h4 class="text-sm font-semibold text-gray-800">
+                Detail per Desa: ${row.nama_kecamatan || '-'}
+            </h4>
+        </div>
+        <div class="pl-10">
+            <div class="text-gray-400 text-sm">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Memuat data desa...
             </div>
-            <div class="pl-10">
-                <div class="text-gray-400 text-sm">
-                    <i class="fas fa-spinner fa-spin mr-2"></i>
-                    Memuat data desa...
-                </div>
-            </div>
-        </td>
-    </tr>
-`);
+        </div>
+    </td>
+</tr>
+`;
                         });
 
-                        // Initialize event listeners setelah data dimuat
+                        // 🚀 DOM UPDATE SEKALI SAJA
+                        tbody.innerHTML = html;
+
+                        // event listener tetap
                         initTabulasiEvents();
                     })
                     .catch(error => {
@@ -1613,34 +1631,37 @@
                     });
             }
 
+
             function initTabulasiEvents() {
-                // Event delegation untuk toggle
-                document.querySelector('#tbl-kecamatan').addEventListener('click', function(e) {
-                    const toggleDiv = e.target.closest('.toggle');
-                    if (!toggleDiv) return;
+                if (tabulasiEventInitialized) return;
+                tabulasiEventInitialized = true;
 
-                    const icon = toggleDiv.querySelector('i');
-                    const tr = toggleDiv.closest('tr');
-                    const kode = tr.dataset.kec;
-                    const detail = document.getElementById(`detail-${kode}`);
+                document.querySelector('#tbl-kecamatan')
+                    .addEventListener('click', function(e) {
+                        const toggleDiv = e.target.closest('.toggle');
+                        if (!toggleDiv) return;
 
-                    if (!detail) return;
+                        const icon = toggleDiv.querySelector('i');
+                        const tr = toggleDiv.closest('tr');
+                        const kode = tr.dataset.kec;
+                        const detail = document.getElementById(`detail-${kode}`);
 
-                    // Toggle icon dan visibility
-                    if (detail.classList.contains('hidden')) {
-                        icon.className = 'fas fa-minus text-xs';
-                        detail.classList.remove('hidden');
+                        if (!detail) return;
 
-                        // Load data jika belum dimuat
-                        if (!detail.dataset.loaded) {
-                            loadDesaData(kode, detail);
+                        if (detail.classList.contains('hidden')) {
+                            icon.className = 'fas fa-minus text-xs';
+                            detail.classList.remove('hidden');
+
+                            if (!detail.dataset.loaded) {
+                                loadDesaData(kode, detail);
+                            }
+                        } else {
+                            icon.className = 'fas fa-plus text-xs';
+                            detail.classList.add('hidden');
                         }
-                    } else {
-                        icon.className = 'fas fa-plus text-xs';
-                        detail.classList.add('hidden');
-                    }
-                });
+                    });
             }
+
 
             function loadDesaData(kodeKecamatan, detailElement) {
                 const loadingDiv = detailElement.querySelector('.pl-10');
@@ -1674,7 +1695,7 @@
                                     <i class="fas fa-check text-blue-600 mr-1"></i>Ditemukan
                                 </th>
                                 <th class="px-4 py-2 text-center font-medium text-gray-700">
-                                    <i class="fas fa-times text-red-600 mr-1"></i>Tdk
+                                    <i class="fas fa-times text-red-600 mr-1"></i>Tidak
                                 </th>
                                 <th class="px-4 py-2 text-center font-medium text-gray-700">
                                     <i class="fas fa-door-closed text-yellow-600 mr-1"></i>Tutup
