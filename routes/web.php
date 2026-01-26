@@ -20,4 +20,8 @@ Route::middleware([AdminBasicAuthMiddleware::class])->group(function () {
     Route::get('/pencatatan-usaha/{id}/edit', [PencatatanUsahaController::class, 'edit'])->name('pencatatan.edit');
     Route::put('/pencatatan-usaha/{id}', [PencatatanUsahaController::class, 'update'])->name('pencatatan.update');
     Route::delete('/pencatatan-usaha/{id}', [PencatatanUsahaController::class, 'destroy'])->name('pencatatan.destroy');
+    Route::get('/dashboard/groundcheck', [PencatatanUsahaController::class, 'dashboardStats']);
+
 });
+
+

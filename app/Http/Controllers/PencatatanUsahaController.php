@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
+
+
 use Illuminate\Http\Request;
 use App\Models\PencatatanUsaha;
 use Illuminate\Support\Str;
@@ -213,5 +216,55 @@ class PencatatanUsahaController extends Controller
                 'message' => 'Gagal menghapus data: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function dashboardStats(Request $request)
+    {
+        $kodeKecamatan = $request->kode_kecamatan;
+        $kodeDesa = $request->kode_desa;
+
+        // QUERY TOTAL USAHA (MASTER)
+        $totalUsahaQuery = DB::table('nama_usaha');
+
+        if ($kodeKecamatan) {
+            $totalUsahaQuery->where('kode_kecamatan', $kodeKecamatan);
+        }
+
+        if ($kodeDesa) {
+            $totalUsahaQuery->where('kode_desa', $kodeDesa);
+        }
+
+        $totalUsaha = $totalUsahaQuery->count();
+
+        // QUERY USAHA YANG SUDAH DICATAT (GROUNDCHECK)
+        $checkedQuery = DB::table('pencatatan_usaha')
+            ->join(
+                'nama_usaha',
+                'pencatatan_usaha.kode_nama_usaha',
+                '=',
+                'nama_usaha.kode_nama_usaha'
+            );
+
+        if ($kodeKecamatan) {
+            $checkedQuery->where('nama_usaha.kode_kecamatan', $kodeKecamatan);
+        }
+
+        if ($kodeDesa) {
+            $checkedQuery->where('nama_usaha.kode_desa', $kodeDesa);
+        }
+
+        $checked = $checkedQuery->count();
+
+        $unchecked = max($totalUsaha - $checked, 0);
+        $percentage = $totalUsaha > 0
+            ? round(($checked / $totalUsaha) * 100, 1)
+            : 0;
+
+        return response()->json([
+            'total' => $totalUsaha,
+            'checked' => $checked,
+            'unchecked' => $unchecked,
+            'percentage' => $percentage
+        ]);
     }
 }

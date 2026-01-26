@@ -38,6 +38,47 @@
             </div>
         </div>
 
+        <!-- DASHBOARD -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+            <!-- FILTER -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div>
+                    <label class="text-xs text-gray-600">Kecamatan</label>
+                    <select id="filter_kecamatan" class="w-full px-3 py-2 text-xs border rounded">
+                        <option value="">Semua Kecamatan</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs text-gray-600">Desa</label>
+                    <select id="filter_desa" class="w-full px-3 py-2 text-xs border rounded">
+                        <option value="">Semua Desa</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ANGKA -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                <div class="bg-gray-50 p-3 rounded">
+                    <p class="text-xs text-gray-500">Total Usaha</p>
+                    <p id="total_data" class="text-xl font-bold">0</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded">
+                    <p class="text-xs text-gray-500">Sudah Dicek</p>
+                    <p id="checked_data" class="text-xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-red-50 p-3 rounded">
+                    <p class="text-xs text-gray-500">Belum Dicek</p>
+                    <p id="unchecked_data" class="text-xl font-bold text-red-600">0</p>
+                </div>
+                <div class="bg-blue-50 p-3 rounded">
+                    <p class="text-xs text-gray-500">Persentase</p>
+                    <p id="percentage_data" class="text-xl font-bold text-blue-600">0%</p>
+                </div>
+            </div>
+        </div>
+
+
         <!-- Card untuk tabel -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
             <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
@@ -361,6 +402,14 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
         <script>
+            // =============================
+            // GLOBAL FILTER DASHBOARD
+            // =============================
+            let filterWilayah = {
+                kode_kecamatan: '',
+                kode_desa: '',
+                kode_nama_usaha: ''
+            };
             // File name preview
             function previewFileName(input) {
                 const fileNameDiv = document.getElementById('fileName');
@@ -443,9 +492,9 @@
                                 ditemukan: 'Ditemukan',
                                 tutup: 'Tutup',
                                 ganda: 'Ganda'
-                            }[val] || '';
+                            } [val] || '';
                         }
-                        
+
 
 
                         // ===== DATA ROWS =====
@@ -464,9 +513,10 @@
                                 path = path.replace(/<[^>]*>/g, '').trim();
 
                                 if (path) {
-                                    photoLink = path.startsWith('http')
-                                        ? path
-                                        : window.location.origin + (path.startsWith('/') ? path : '/storage/' + path);
+                                    photoLink = path.startsWith('http') ?
+                                        path :
+                                        window.location.origin + (path.startsWith('/') ? path :
+                                            '/storage/' + path);
                                 }
                             }
 
@@ -515,11 +565,14 @@
 
                         // ===== EXPORT =====
                         const csv = Papa.unparse(csvData);
-                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const blob = new Blob([csv], {
+                            type: 'text/csv;charset=utf-8;'
+                        });
                         const link = document.createElement("a");
 
                         link.href = URL.createObjectURL(blob);
-                        link.download = "pencatatan_usaha_lengkap_" + new Date().toISOString().slice(0, 10) + ".csv";
+                        link.download = "pencatatan_usaha_lengkap_" + new Date().toISOString().slice(0, 10) +
+                            ".csv";
                         link.style.visibility = 'hidden';
 
                         document.body.appendChild(link);
@@ -552,6 +605,8 @@
 
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
+                 loadDashboardStats(); 
+                // init datatables
                 var table = $('#dataTable').DataTable({
                     processing: true,
                     serverSide: true,
@@ -967,6 +1022,8 @@
                             });
                         }
                     });
+
+
                 });
 
                 // Close modal when clicking outside
@@ -976,7 +1033,67 @@
                         closeEditModal();
                     }
                 }
+
+                // ===============================
+                // LOAD KECAMATAN
+                // ===============================
+                $.get('/api/kecamatan', function(data) {
+                    $('#filter_kecamatan').html('<option value="">Semua Kecamatan</option>');
+                    data.forEach(item => {
+                        $('#filter_kecamatan').append(
+                            `<option value="${item.kode_kecamatan}">${item.nama_kecamatan}</option>`
+                        );
+                    });
+                });
+
+
+                // ===============================
+                // CHANGE KECAMATAN
+                // ===============================
+                $('#filter_kecamatan').on('change', function() {
+                    filterWilayah.kode_kecamatan = $(this).val();
+                    filterWilayah.kode_desa = '';
+
+                    $('#filter_desa').html('<option value="">Semua Desa</option>');
+
+                    if (filterWilayah.kode_kecamatan) {
+                        $.get('/api/desa/' + filterWilayah.kode_kecamatan, function(data) {
+                            data.forEach(item => {
+                                $('#filter_desa').append(
+                                    `<option value="${item.kode_desa}">${item.nama_desa}</option>`
+                                );
+                            });
+                        });
+                    }
+
+                    table.ajax.reload(); // ✅ AMAN
+                    loadDashboardStats(); // 🔥 update angka dashboard
+                });
+
+
+                // ===============================
+                // CHANGE DESA
+                // ===============================
+                $('#filter_desa').on('change', function() {
+                    filterWilayah.kode_desa = $(this).val();
+
+                    table.ajax.reload();
+                    loadDashboardStats();
+                });
+
             });
+
+            function loadDashboardStats() {
+                $.get('/dashboard/groundcheck', {
+                    kode_kecamatan: filterWilayah.kode_kecamatan,
+                    kode_desa: filterWilayah.kode_desa
+                }, function(res) {
+                    $('#total_data').text(res.total || 0);
+                    $('#checked_data').text(res.checked || 0);
+                    $('#unchecked_data').text(res.unchecked || 0);
+                    $('#percentage_data').text((res.percentage || 0) + '%');
+                });
+            }
         </script>
     @endpush
 @endsection
