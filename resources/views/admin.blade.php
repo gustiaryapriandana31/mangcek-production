@@ -955,6 +955,13 @@
 
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
+
+                // load dashboard
+                loadDashboardStats();
+
+                // load tabulasi data
+                loadTabulasiData();
+                
                 // init datatables all data
                 var table = $('#dataTable').DataTable({
                     processing: true,
@@ -1429,14 +1436,6 @@
                     table.ajax.reload();
                     loadDashboardStats();
                 });
-
-                // load dashboard
-                loadDashboardStats();
-
-                // load tabulasi data
-                loadTabulasiData();
-
-
             });
 
             function updateProgressBars(checked, unchecked, percentage) {
