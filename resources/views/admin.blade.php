@@ -37,43 +37,146 @@
                 </div>
             </div>
         </div>
-
-        <!-- DASHBOARD -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-            <!-- FILTER -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <!-- DASHBOARD - REDESIGN -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <!-- HEADER DASHBOARD -->
+            <div class="flex items-center justify-between mb-4">
                 <div>
-                    <label class="text-xs text-gray-600">Kecamatan</label>
-                    <select id="filter_kecamatan" class="w-full px-3 py-2 text-xs border rounded">
-                        <option value="">Semua Kecamatan</option>
-                    </select>
+                    <h2 class="text-base font-bold text-gray-800">Dashboard Monitoring</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Statistik Ground Check per Wilayah</p>
                 </div>
-
-                <div>
-                    <label class="text-xs text-gray-600">Desa</label>
-                    <select id="filter_desa" class="w-full px-3 py-2 text-xs border rounded">
-                        <option value="">Semua Desa</option>
-                    </select>
+                <div class="flex items-center space-x-2">
+                    <div class="text-xs text-gray-500 px-2 py-1 bg-gray-50 rounded">
+                        <i class="fas fa-calendar-alt mr-1"></i>
+                        <span id="currentDate"></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- ANGKA -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                <div class="bg-gray-50 p-3 rounded">
-                    <p class="text-xs text-gray-500">Total Usaha</p>
-                    <p id="total_data" class="text-xl font-bold">0</p>
+            <!-- FILTER -->
+            <div class="bg-gradient-to-r from-gray-50 to-white border border-gray-100 rounded-lg p-4 mb-5 shadow-inner">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-filter text-sm text-primary mr-2"></i>
+                    <h3 class="text-sm font-semibold text-gray-700">Filter Wilayah</h3>
                 </div>
-                <div class="bg-green-50 p-3 rounded">
-                    <p class="text-xs text-gray-500">Sudah Dicek</p>
-                    <p id="checked_data" class="text-xl font-bold text-green-600">0</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1.5 flex items-center">
+                            <i class="fas fa-map-marker-alt mr-1.5 text-primary text-xs"></i>
+                            Kecamatan
+                        </label>
+                        <select id="filter_kecamatan"
+                            class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 bg-white shadow-sm">
+                            <option value="">Semua Kecamatan</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1.5 flex items-center">
+                            <i class="fas fa-map-pin mr-1.5 text-primary text-xs"></i>
+                            Desa/Kelurahan
+                        </label>
+                        <select id="filter_desa"
+                            class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 bg-white shadow-sm">
+                            <option value="">Semua Desa</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button onclick="resetFilter()"
+                            class="w-full px-3 py-2 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm flex items-center justify-center">
+                            <i class="fas fa-redo-alt mr-1.5 text-xs"></i>
+                            Reset Filter
+                        </button>
+                    </div>
                 </div>
-                <div class="bg-red-50 p-3 rounded">
-                    <p class="text-xs text-gray-500">Belum Dicek</p>
-                    <p id="unchecked_data" class="text-xl font-bold text-red-600">0</p>
+            </div>
+
+            <!-- STATISTICS CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Total Usaha -->
+                <div
+                    class="bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="p-2 rounded-lg bg-gray-100">
+                            <i class="fas fa-store text-lg text-gray-600"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                            TOTAL
+                        </span>
+                    </div>
+                    <div class="mb-1">
+                        <p class="text-xs text-gray-500 mb-1">Total Usaha</p>
+                        <p id="total_data" class="text-2xl font-bold text-gray-800">0</p>
+                    </div>
+                    <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gray-400 rounded-full" style="width: 100%"></div>
+                    </div>
                 </div>
-                <div class="bg-blue-50 p-3 rounded">
-                    <p class="text-xs text-gray-500">Persentase</p>
-                    <p id="percentage_data" class="text-xl font-bold text-blue-600">0%</p>
+
+                <!-- Sudah Dicek -->
+                <div
+                    class="bg-gradient-to-br from-green-50 to-white border border-green-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="p-2 rounded-lg bg-green-100">
+                            <i class="fas fa-check-circle text-lg text-green-600"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2 py-1 rounded-full bg-green-100 text-green-600">
+                            DONE
+                        </span>
+                    </div>
+                    <div class="mb-1">
+                        <p class="text-xs text-green-600 mb-1">Sudah Dicek</p>
+                        <p id="checked_data" class="text-2xl font-bold text-green-700">0</p>
+                    </div>
+                    <div class="h-1 w-full bg-green-200 rounded-full overflow-hidden">
+                        <div id="checked_bar" class="h-full bg-green-500 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Belum Dicek -->
+                <div
+                    class="bg-gradient-to-br from-red-50 to-white border border-red-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="p-2 rounded-lg bg-red-100">
+                            <i class="fas fa-clock text-lg text-red-600"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2 py-1 rounded-full bg-red-100 text-red-600">
+                            PENDING
+                        </span>
+                    </div>
+                    <div class="mb-1">
+                        <p class="text-xs text-red-600 mb-1">Belum Dicek</p>
+                        <p id="unchecked_data" class="text-2xl font-bold text-red-700">0</p>
+                    </div>
+                    <div class="h-1 w-full bg-red-200 rounded-full overflow-hidden">
+                        <div id="unchecked_bar" class="h-full bg-red-500 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Persentase -->
+                <div
+                    class="bg-gradient-to-br from-[#fef6e6] to-white border border-[#fde9c8] rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="p-2 rounded-lg" style="background-color: rgba(247, 144, 57, 0.1)">
+                            <i class="fas fa-chart-line text-lg" style="color: #f79039"></i>
+                        </div>
+                        <span class="text-xs font-medium px-2 py-1 rounded-full"
+                            style="background-color: rgba(247, 144, 57, 0.1); color: #f79039">
+                            PROGRESS
+                        </span>
+                    </div>
+                    <div class="mb-1">
+                        <p class="text-xs mb-1" style="color: #f79039">Persentase Selesai</p>
+                        <div class="flex items-baseline space-x-1">
+                            <p id="percentage_data" class="text-2xl font-bold" style="color: #f79039">0%</p>
+                            <span class="text-xs text-gray-500">dari target</span>
+                        </div>
+                    </div>
+                    <div class="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div id="percentage_bar" class="h-full rounded-full transition-all duration-1000"
+                            style="background: linear-gradient(90deg, #febd26, #f79039); width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -313,6 +416,62 @@
 
     @push('styles')
         <style>
+            /* Dashboard Specific Styles */
+            #filter_kecamatan,
+            #filter_desa {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 0.5rem center;
+                background-repeat: no-repeat;
+                background-size: 1.5em 1.5em;
+                padding-right: 2.5rem;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+
+            /* Smooth transition for progress bars */
+            #checked_bar,
+            #unchecked_bar,
+            #percentage_bar {
+                transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            /* Card hover effects */
+            .bg-gradient-to-br {
+                transition: all 0.3s ease;
+            }
+
+            .bg-gradient-to-br:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+
+            /* Animation for numbers */
+            @keyframes countUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Tambahkan animasi saat angka berubah */
+            #total_data,
+            #checked_data,
+            #unchecked_data,
+            #percentage_data {
+                animation: countUp 0.6s ease-out;
+            }
+
+            /* Primary color utility */
+            .text-primary {
+                color: #f79039;
+            }
+
             /* Tabel styling - NO FIXED WIDTHS */
             #dataTable th,
             #dataTable td {
@@ -605,7 +764,7 @@
 
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
-                 loadDashboardStats(); 
+                loadDashboardStats();
                 // init datatables
                 var table = $('#dataTable').DataTable({
                     processing: true,
@@ -1083,15 +1242,75 @@
 
             });
 
+            function updateProgressBars(checked, unchecked, percentage) {
+                const checkedBar = document.getElementById('checked_bar');
+                const uncheckedBar = document.getElementById('unchecked_bar');
+                const percentageBar = document.getElementById('percentage_bar');
+
+                const total = checked + unchecked;
+                const checkedPercent = total > 0 ? (checked / total) * 100 : 0;
+                const uncheckedPercent = total > 0 ? (unchecked / total) * 100 : 0;
+
+                // Update progress bars dengan animasi
+                if (checkedBar) checkedBar.style.width = `${checkedPercent}%`;
+                if (uncheckedBar) uncheckedBar.style.width = `${uncheckedPercent}%`;
+                if (percentageBar) percentageBar.style.width = `${percentage}%`;
+            }
+
+            // Reset filter function untuk tombol reset di dashboard
+            function resetFilter() {
+                filterWilayah = {
+                    kode_kecamatan: '',
+                    kode_desa: '',
+                    kode_nama_usaha: ''
+                };
+
+                $('#filter_kecamatan').val('');
+                $('#filter_desa').html('<option value="">Semua Desa</option>');
+
+                // Reload table dan dashboard
+                if (typeof table !== 'undefined') {
+                    table.ajax.reload();
+                }
+                loadDashboardStats();
+
+                // Show notification
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Filter Direset!',
+                    text: 'Semua filter telah direset',
+                    toast: true,
+                    position: 'top-end',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    width: 300
+                });
+            }
+
+            // Enhanced dashboard stats dengan progress bars
             function loadDashboardStats() {
                 $.get('/dashboard/groundcheck', {
                     kode_kecamatan: filterWilayah.kode_kecamatan,
                     kode_desa: filterWilayah.kode_desa
                 }, function(res) {
-                    $('#total_data').text(res.total || 0);
-                    $('#checked_data').text(res.checked || 0);
-                    $('#unchecked_data').text(res.unchecked || 0);
-                    $('#percentage_data').text((res.percentage || 0) + '%');
+                    const total = res.total || 0;
+                    const checked = res.checked || 0;
+                    const unchecked = res.unchecked || 0;
+                    const percentage = res.percentage || 0;
+
+                    // Format angka dengan pemisah ribuan
+                    const formatNumber = (num) => num.toLocaleString('id-ID');
+
+                    // Update main stats dengan animasi
+                    $('#total_data').text(formatNumber(total));
+                    $('#checked_data').text(formatNumber(checked));
+                    $('#unchecked_data').text(formatNumber(unchecked));
+                    $('#percentage_data').text(percentage + '%');
+
+                    // Update progress bars
+                    updateProgressBars(checked, unchecked, percentage);
+                }).fail(function() {
+                    console.error('Gagal memuat statistik dashboard');
                 });
             }
         </script>
