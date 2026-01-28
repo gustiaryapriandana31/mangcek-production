@@ -203,7 +203,7 @@
                             <th class="px-4 py-3 text-center font-medium text-gray-700">
                                 <div class="flex items-center justify-center">
                                     <i class="fas fa-store mr-1 text-xs"></i>
-                                    <span>Total</span>
+                                    <span>Target</span>
                                 </div>
                             </th>
                             <th class="px-4 py-3 text-center font-medium text-gray-700">
@@ -1557,7 +1557,11 @@
                         // 🔥 BUFFER HTML (INI INTI OPTIMASI)
                         let html = '';
 
-                        data.forEach((row) => {
+                        // Di dalam loadTabulasiData() function, setelah data.forEach((row) => { ...
+                        data.forEach((row, index) => {
+                            // Cek apakah ini baris total
+                            const isTotalRow = row.kode_kecamatan === 'TOTAL';
+
                             let persen = row.total > 0 ?
                                 ((row.checked / row.total) * 100).toFixed(1) :
                                 0;
@@ -1570,8 +1574,25 @@
                             let rowClass = '';
                             if (persen >= 80) rowClass = 'row-highlight';
 
-                            // ❗ HTML DI BAWAH TIDAK DIUBAH SAMA SEKALI
-                            html += `
+                            // Jika ini baris total, berikan style khusus
+                            if (isTotalRow) {
+                                rowClass = 'bg-gray-100 font-bold border-t-2 border-gray-300';
+                                html += `
+<tr class="${rowClass}">
+    <td class="px-4 py-3 text-center text-gray-500">-</td>
+    <td class="px-4 py-3 font-bold text-gray-900">${row.nama_kecamatan}</td>
+    <td class="px-4 py-3 text-center font-bold text-gray-900">${(row.total || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-bold text-green-900">${(row.checked || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-bold text-orange-600">${persen}%</td>
+    <td class="px-4 py-3 text-center font-bold text-blue-900">${(row.ditemukan || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-bold text-red-900">${(row.tidak_ditemukan || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-bold text-yellow-900">${(row.tutup || 0).toLocaleString('id-ID')}</td>
+    <td class="px-4 py-3 text-center font-bold text-purple-900">${(row.ganda || 0).toLocaleString('id-ID')}</td>
+</tr>
+`;
+                            } else {
+                                // Baris biasa (seperti sebelumnya)
+                                html += `
 <tr data-kec="${row.kode_kecamatan}" class="${rowClass} hover:bg-gray-50 transition-colors">
     <td class="px-4 py-3">
         <div class="toggle cursor-pointer w-6 h-6 flex items-center justify-center mx-auto rounded-md bg-gray-100 hover:bg-primary hover:text-white transition-colors">
@@ -1606,6 +1627,7 @@
     </td>
 </tr>
 `;
+                            }
                         });
 
                         // 🚀 DOM UPDATE SEKALI SAJA
@@ -1641,8 +1663,11 @@
                         const toggleDiv = e.target.closest('.toggle');
                         if (!toggleDiv) return;
 
-                        const icon = toggleDiv.querySelector('i');
+                        // Cek apakah ini baris total (tidak ada data-kec attribute)
                         const tr = toggleDiv.closest('tr');
+                        if (!tr.dataset.kec) return; // Skip baris total
+
+                        const icon = toggleDiv.querySelector('i');
                         const kode = tr.dataset.kec;
                         const detail = document.getElementById(`detail-${kode}`);
 
@@ -1688,7 +1713,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-2 text-left font-medium text-gray-700">Desa/Kelurahan</th>
-                                <th class="px-4 py-2 text-center font-medium text-gray-700">Total</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700">Target</th>
                                 <th class="px-4 py-2 text-center font-medium text-gray-700">GC</th>
                                 <th class="px-4 py-2 text-center font-medium text-gray-700">%</th>
                                 <th class="px-4 py-2 text-center font-medium text-gray-700">

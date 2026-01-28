@@ -274,10 +274,9 @@ class PencatatanUsahaController extends Controller
     public function rekapKecamatan()
     {
         $data = Cache::remember(
-            'rekap_kecamatan_dashboard', // KEY CACHE
-            300, // 5 menit
+            'rekap_kecamatan_dashboard',
+            300,
             function () {
-
                 $puAgg = DB::table('pencatatan_usaha')
                     ->select(
                         'kode_nama_usaha',
@@ -289,7 +288,7 @@ class PencatatanUsahaController extends Controller
                     )
                     ->groupBy('kode_nama_usaha');
 
-                return DB::table('nama_usaha as nu')
+                $kecamatanData = DB::table('nama_usaha as nu')
                     ->join('kecamatan as k', 'k.kode_kecamatan', '=', 'nu.kode_kecamatan')
                     ->leftJoinSub($puAgg, 'pu', function ($join) {
                         $join->on('pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha');
@@ -307,6 +306,23 @@ class PencatatanUsahaController extends Controller
                     ->groupBy('k.kode_kecamatan', 'k.nama_kecamatan')
                     ->orderBy('k.nama_kecamatan')
                     ->get();
+
+                // HITUNG TOTAL KESELURUHAN
+                $totals = [
+                    'kode_kecamatan' => 'TOTAL',
+                    'nama_kecamatan' => 'TOTAL SEMUA KECAMATAN',
+                    'total' => $kecamatanData->sum('total'),
+                    'checked' => $kecamatanData->sum('checked'),
+                    'ditemukan' => $kecamatanData->sum('ditemukan'),
+                    'tidak_ditemukan' => $kecamatanData->sum('tidak_ditemukan'),
+                    'tutup' => $kecamatanData->sum('tutup'),
+                    'ganda' => $kecamatanData->sum('ganda')
+                ];
+
+                // Tambahkan total sebagai item terakhir
+                $kecamatanData->push((object) $totals);
+
+                return $kecamatanData;
             }
         );
 
