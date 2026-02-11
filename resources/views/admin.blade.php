@@ -182,7 +182,7 @@
         </div>
 
         {{-- Tabel Tabulasi --}}
-        {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-base font-bold text-gray-800">Rekapitulasi per Kecamatan</h2>
@@ -247,9 +247,7 @@
                     <tbody class="divide-y divide-gray-100 bg-white"></tbody>
                 </table>
             </div>
-        </div> --}}
-
-
+        </div>
 
         <!-- Card untuk tabel -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
