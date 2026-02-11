@@ -182,7 +182,7 @@
         </div>
 
         {{-- Tabel Tabulasi --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-base font-bold text-gray-800">Rekapitulasi per Kecamatan</h2>
@@ -247,24 +247,58 @@
                     <tbody class="divide-y divide-gray-100 bg-white"></tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
 
 
 
         <!-- Card untuk tabel -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
             <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                <div class="flex justify-between items-center">
+                <div class="flex flex-row justify-between items-center">
                     <div>
-                        <h2 class="text-sm font-medium text-gray-700">Daftar Pencatatan Usaha</h2>
-                        <p class="text-gray-500 text-xs mt-0.5">Total data: <span id="totalRecords"
-                                class="font-medium">0</span>
-                            entri</p>
+                        <h2 class="text-sm font-medium text-gray-700">
+                            Daftar Pencatatan Usaha
+                        </h2>
+                        <p class="text-gray-500 text-xs mt-0.5">
+                            Total data:
+                            <span id="totalRecords" class="font-medium">0</span>
+                            entri
+                        </p>
                     </div>
-                    <button onclick="exportToCSV()"
-                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs flex items-center transition-all duration-200">
-                        <i class="fas fa-file-csv mr-1 text-xs"></i> Export CSV
-                    </button>
+
+                    <!-- BUTTON AREA -->
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportToCSV()"
+                            class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-xs transition-all duration-200">
+                            <i class="fas fa-file-csv mr-1 text-xs"></i>
+                            Export CSV
+                        </button>
+
+                        {{-- <button onclick="exportGroupingPetugasToCSV()"
+                            class="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded text-xs transition-all duration-200">
+                            <i class="fas fa-file-csv mr-1 text-xs"></i>
+                            Grouping Petugas
+                        </button>
+
+                        <button onclick="exportGroupingKecamatanToCSV()"
+                            class="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded text-xs transition-all duration-200">
+                            <i class="fas fa-file-csv mr-1 text-xs"></i>
+                            Grouping Kecamatan
+                        </button>
+
+                        <button onclick="exportGroupingDesaToCSV()"
+                            class="inline-flex items-center bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs transition-all duration-200">
+                            <i class="fas fa-file-csv mr-1 text-xs"></i>
+                            Grouping Desa
+                        </button> --}}
+
+                        <a href="{{ route('export.petugas.kecamatan.desa') }}"
+                            class="inline-flex items-center bg-red-400 hover:bg-red-500 text-white px-3 py-1.5 rounded text-xs transition-all duration-200">
+                            <i class="fas fa-file-excel mr-1 text-xs"></i>
+                            Export Grouping
+                        </a>
+
+                    </div>
                 </div>
             </div>
 
@@ -956,6 +990,245 @@
                 });
             }
 
+            function exportGroupingPetugasToCSV() {
+                $.ajax({
+                    url: "{{ route('pencatatan.grouping.petugas') }}",
+                    type: 'GET',
+                    success: function(response) {
+
+                        const data = response.data;
+                        const csvData = [];
+
+                        // ===== HEADER =====
+                        csvData.push([
+                            'No',
+                            'Nama Pegawai',
+                            'Total Usaha yang Dicatat'
+                        ]);
+
+                        let grandTotal = 0;
+
+                        // ===== LANGSUNG PAKAI DATA BACKEND =====
+                        data.forEach((row, index) => {
+
+                            csvData.push([
+                                index + 1,
+                                row.nama_petugas,
+                                row.total_usaha
+                            ]);
+
+                            grandTotal += parseInt(row.total_usaha);
+                        });
+
+                        // ===== GRAND TOTAL =====
+                        csvData.push([]);
+                        csvData.push([
+                            '',
+                            'GRAND TOTAL',
+                            grandTotal
+                        ]);
+
+                        // ===== EXPORT =====
+                        const csv = Papa.unparse(csvData);
+                        const blob = new Blob([csv], {
+                            type: 'text/csv;charset=utf-8;'
+                        });
+
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "grouping_petugas_" + new Date().toISOString().slice(0, 10) + ".csv";
+                        link.style.visibility = 'hidden';
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'CSV Grouping Petugas berhasil diexport',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Gagal mengexport CSV',
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    }
+                });
+            }
+
+            function exportGroupingKecamatanToCSV() {
+                $.ajax({
+                    url: "{{ route('pencatatan.grouping.kecamatan') }}",
+                    type: 'GET',
+                    success: function(response) {
+
+                        const data = response.data;
+                        const csvData = [];
+
+                        // ===== HEADER =====
+                        csvData.push([
+                            'No',
+                            'Kode Kecamatan',
+                            'Nama Kecamatan',
+                            'Total Usaha'
+                        ]);
+
+                        let grandTotal = 0;
+
+                        // ===== DATA =====
+                        data.forEach((row, index) => {
+
+                            csvData.push([
+                                index + 1,
+                                row.kode_kecamatan,
+                                row.nama_kecamatan,
+                                row.total_usaha
+                            ]);
+
+                            grandTotal += parseInt(row.total_usaha);
+                        });
+
+                        // ===== GRAND TOTAL =====
+                        csvData.push([]);
+                        csvData.push([
+                            '',
+                            '',
+                            'GRAND TOTAL',
+                            grandTotal
+                        ]);
+
+                        // ===== EXPORT =====
+                        const csv = Papa.unparse(csvData);
+                        const blob = new Blob([csv], {
+                            type: 'text/csv;charset=utf-8;'
+                        });
+
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "grouping_kecamatan_" +
+                            new Date().toISOString().slice(0, 10) + ".csv";
+                        link.style.visibility = 'hidden';
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'CSV Grouping Kecamatan berhasil diexport',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Gagal mengexport CSV grouping kecamatan',
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    }
+                });
+            }
+
+            function exportGroupingDesaToCSV() {
+                $.ajax({
+                    url: "{{ route('pencatatan.grouping.desa') }}",
+                    type: 'GET',
+                    success: function(response) {
+
+                        const data = response.data;
+                        const csvData = [];
+
+                        // ===== HEADER =====
+                        csvData.push([
+                            'No',
+                            'Kode Desa',
+                            'Nama Desa',
+                            'Total Usaha'
+                        ]);
+
+                        let grandTotal = 0;
+
+                        // ===== DATA =====
+                        data.forEach((row, index) => {
+
+                            csvData.push([
+                                index + 1,
+                                row.kode_desa,
+                                row.nama_desa,
+                                row.total_usaha
+                            ]);
+
+                            grandTotal += parseInt(row.total_usaha);
+                        });
+
+                        // ===== GRAND TOTAL =====
+                        csvData.push([]);
+                        csvData.push([
+                            '',
+                            '',
+                            'GRAND TOTAL',
+                            grandTotal
+                        ]);
+
+                        // ===== EXPORT =====
+                        const csv = Papa.unparse(csvData);
+                        const blob = new Blob([csv], {
+                            type: 'text/csv;charset=utf-8;'
+                        });
+
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = "grouping_desa_" +
+                            new Date().toISOString().slice(0, 10) + ".csv";
+                        link.style.visibility = 'hidden';
+
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'CSV Grouping Desa berhasil diexport',
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Gagal mengexport CSV grouping desa',
+                            toast: true,
+                            position: 'top-end',
+                            width: 300
+                        });
+                    }
+                });
+            }
+
             // Initialize DataTable - AUTO WIDTH ENABLED
             $(document).ready(function() {
 
@@ -1241,7 +1514,7 @@
                                         '/storage/' + response.photo_path);
 
                                 $('#current_photo').html(`
-                            <a href="${photoUrl}" target="_blank" 
+                            <a href="${photoUrl}" target="_blank"
                                 class="inline-flex items-center space-x-1 bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 text-xs">
                                 <i class="fas fa-eye text-blue-600"></i>
                                 <span class="text-blue-600">Lihat Foto</span>

@@ -10,6 +10,8 @@ use App\Models\PencatatanUsaha;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use DataTables;
+use App\Exports\LaporanStatistikExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PencatatanUsahaController extends Controller
 {
@@ -69,7 +71,6 @@ class PencatatanUsahaController extends Controller
 
         return redirect()->back()->with('success', 'Data berhasil disimpan!');
     }
-
 
     public function index(Request $request)
     {
@@ -222,6 +223,70 @@ class PencatatanUsahaController extends Controller
         }
     }
 
+
+
+    public function exportStatistik()
+    {
+        return Excel::download(
+            new LaporanStatistikExport,
+            'grouping_petugas_kecamatan_desa_' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    public function groupingPetugas()
+    {
+        $data = DB::table('pencatatan_usaha as pu')
+            ->select('nama_petugas', DB::raw('COUNT(pu.id) as total_usaha'))
+            ->whereNotNull('nama_petugas')
+            ->where('nama_petugas', '!=', '')
+            ->groupBy('nama_petugas')
+            ->orderByDesc('total_usaha')
+            ->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
+    public function groupingKecamatan()
+    {
+        $data = DB::table('pencatatan_usaha as pu')
+            ->join('nama_usaha as nu', 'pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha')
+            ->join('kecamatan as k', 'nu.kode_kecamatan', '=', 'k.kode_kecamatan')
+            ->select(
+                'k.kode_kecamatan',
+                'k.nama_kecamatan',
+                DB::raw('COUNT(pu.id) as total_usaha')
+            )
+            ->groupBy('k.kode_kecamatan', 'k.nama_kecamatan')
+            ->orderByDesc('total_usaha')
+            ->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
+    public function groupingDesa()
+    {
+        $data = DB::table('pencatatan_usaha as pu')
+            ->join('nama_usaha as nu', 'pu.kode_nama_usaha', '=', 'nu.kode_nama_usaha')
+            ->join('desa as d', 'nu.kode_desa', '=', 'd.kode_desa')
+            ->select(
+                'd.kode_desa',
+                'd.nama_desa',
+                DB::raw('COUNT(pu.id) as total_usaha')
+            )
+            ->groupBy('d.kode_desa', 'd.nama_desa')
+            ->orderByDesc('total_usaha')
+            ->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
+
     public function dashboardStats(Request $request)
     {
         $kodeKecamatan = $request->kode_kecamatan;
@@ -328,7 +393,6 @@ class PencatatanUsahaController extends Controller
 
         return response()->json($data);
     }
-
 
     public function rekapDesa(Request $request)
     {
