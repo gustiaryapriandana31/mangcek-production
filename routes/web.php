@@ -28,6 +28,14 @@ Route::middleware([AdminBasicAuthMiddleware::class])->group(function () {
     Route::get('/dashboard/groundcheck', [PencatatanUsahaController::class, 'dashboardStats']);
     Route::get('/dashboard/rekap-kecamatan', [PencatatanUsahaController::class, 'rekapKecamatan']);
     Route::get('/dashboard/rekap-desa',  [PencatatanUsahaController::class, 'rekapDesa']);
+    
 });
+
+// Data Matcha Dashboard (No Auth)
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard.index');
+Route::get('/dashboard/{id}', [\App\Http\Controllers\DashboardController::class, 'show'])->name('dashboard.show');
+Route::put('/dashboard/{id}', [\App\Http\Controllers\DashboardController::class, 'update'])->name('dashboard.update');
+Route::delete('/dashboard/{id}', [\App\Http\Controllers\DashboardController::class, 'destroy'])->name('dashboard.destroy');
+
 
 
