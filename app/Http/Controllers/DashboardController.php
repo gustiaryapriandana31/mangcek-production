@@ -26,20 +26,48 @@ class DashboardController extends Controller
                 'longitude_gc',
             ]);
 
-           return DataTables::of($query)
-    ->addIndexColumn()
-    ->filter(function ($query) use ($request) {
-    if ($request->search['value'] ?? false) {
-        $keyword = $request->search['value'];
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->filter(function ($query) use ($request) {
 
-        if (strlen($keyword) >= 2) {
-            $query->where('nama_usaha', 'like', "{$keyword}%");
+                    // 🔍 search nama usaha
+                    if ($request->search['value'] ?? false) {
+                        $keyword = $request->search['value'];
+
+                        if (strlen($keyword) >= 2) {
+                            $query->where('nama_usaha', 'like', "{$keyword}%");
+                        }
+                    }
+
+                    // 📍 filter kecamatan
+                    if ($request->kecamatan) {
+                        $query->where('nmkec', $request->kecamatan);
+                    }
+
+                    // 📍 filter desa
+                    if ($request->desa) {
+                        $query->where('nmdesa', $request->desa);
+                    }
+                }, true)
+                ->make(true);
         }
+
+        $kecamatan = DataMatcha::select('nmkec')
+            ->distinct()
+            ->orderBy('nmkec')
+            ->pluck('nmkec');
+
+        return view('dashboard.dashboard', compact('kecamatan'));
     }
-}, true)
-    ->make(true);
-        }
 
-        return view('dashboard.dashboard');
+    public function getDesa(Request $request)
+    {
+        $desa = DataMatcha::where('nmkec', $request->kecamatan)
+            ->select('nmdesa')
+            ->distinct()
+            ->orderBy('nmdesa')
+            ->pluck('nmdesa');
+
+        return response()->json($desa);
     }
 }

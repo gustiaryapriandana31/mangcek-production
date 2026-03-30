@@ -38,6 +38,37 @@
         </div>
         <!-- DASHBOARD DATA ONLY -->
 
+        <div class="flex items-center gap-2 mb-3" id="filter-wrapper">
+
+            <!-- kecamatan -->
+            <select id="filter_kecamatan" class="px-2 py-1 text-xs border rounded">
+                <option value="">Semua Kecamatan</option>
+                @foreach ($kecamatan as $kec)
+                    <option value="{{ $kec }}">{{ $kec }}</option>
+                @endforeach
+            </select>
+
+            <!-- desa -->
+            <select id="filter_desa" class="px-2 py-1 text-xs border rounded">
+                <option value="">Semua Desa</option>
+            </select>
+
+            <!-- reset -->
+            <button id="reset_filter" class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300">
+                Reset
+            </button>
+
+            <!-- 🔥 spinner kecil -->
+            <div id="filter-loading" class="hidden">
+                <svg class="animate-spin h-4 w-4 text-orange-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                        stroke-width="4" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+            </div>
+
+        </div>
 
         <!-- Card untuk tabel -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
@@ -53,7 +84,7 @@
             </div>
 
             <div>
-                <div class="overflow-x-auto rounded border border-gray-200 px-3">
+                <div class="relative overflow-x-auto rounded border border-gray-200 px-3">
                     <table class="min-w-full text-xs" id="dataTable">
                         <thead class="bg-gray-50">
                             <tr>
@@ -419,12 +450,28 @@
                 padding: 0 2px;
                 font-weight: 500;
             }
+
+            #table-skeleton {
+                min-height: 150px;
+            }
+
+            #dataTable tbody {
+                transition: opacity 0.2s ease;
+            }
         </style>
     @endpush
 
     @push('scripts')
         <script>
             $(document).ready(function() {
+
+                function showFilterLoading() {
+                    $('#filter-loading').removeClass('hidden');
+                }
+
+                function hideFilterLoading() {
+                    $('#filter-loading').addClass('hidden');
+                }
 
                 var searchTimer = null;
 
@@ -437,10 +484,8 @@
                         url: "{{ route('dashboard.index') }}",
                         type: 'GET',
                         data: function(d) {
-                            // Pastikan search hanya dikirim untuk nama_usaha
-                            // Set semua kolom tidak searchable kecuali nama_usaha (index 2)
-                            if (d.columns) {
-                            }
+                            d.kecamatan = $('#filter_kecamatan').val();
+                            d.desa = $('#filter_desa').val();
                             return d;
                         },
                         error: function(xhr) {
@@ -545,11 +590,15 @@
                     ],
 
                     language: {
-                        processing: '<div class="flex items-center gap-2 text-xs text-gray-500 py-1">' +
-                            '<svg class="animate-spin h-4 w-4 text-orange-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">' +
-                            '<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>' +
-                            '<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>' +
-                            '</svg>&nbsp;Memuat data...</div>',
+                        processing: `
+    <div class="flex flex-col items-center justify-center py-6 gap-2 text-gray-500">
+        <svg class="animate-spin h-6 w-6 text-orange-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        <span class="text-xs">Memuat data...</span>
+    </div>
+    `,
                         search: '',
                         searchPlaceholder: 'Cari nama usaha...',
                         lengthMenu: 'Tampilkan _MENU_',
@@ -564,8 +613,9 @@
                     },
 
                     dom: '<"flex justify-between items-center p-2"<"text-xs"l><"text-xs"f>>' +
-                        'rt' +
-                        '<"flex justify-between items-center p-2"<"text-xs text-gray-600"i><"text-xs"p>>',
+     'r' +   // ⬅️ pisahin
+     't' +
+     '<"flex justify-between items-center p-2"<"text-xs text-gray-600"i><"text-xs"p>>',
 
                     autoWidth: false,
                     scrollX: true,
@@ -580,61 +630,125 @@
                         }
                     },
 
-                    initComplete: function () {
-    let api = this.api();
-    let searchTimer;
+                    initComplete: function() {
+                        let api = this.api();
+                        let searchTimer;
 
-    let $input = $('.dataTables_filter input');
-    let $wrapper = $('.dataTables_wrapper');
+                        let $input = $('.dataTables_filter input');
+                        let $wrapper = $('.dataTables_wrapper');
 
-    $input.addClass(
-        'px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none'
-    );
+                        $input.addClass(
+                            'px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none'
+                        );
 
-    function setState(state) {
-        $wrapper.removeClass('search-loading search-done search-empty');
-        if (state) $wrapper.addClass('search-' + state);
-    }
+                        function setState(state) {
+                            $wrapper.removeClass('search-loading search-done search-empty');
+                            if (state) $wrapper.addClass('search-' + state);
+                        }
 
-    $input.on('keyup', function () {
-        clearTimeout(searchTimer);
+                        $input.on('keyup', function() {
+                            clearTimeout(searchTimer);
 
-        let val = this.value.trim();
+                            let val = this.value.trim();
 
-        // kalau kosong → reset
-        if (val === '') {
-            setState(null);
-            api.search('').draw();
-            return;
-        }
+                            // kalau kosong → reset
+                            if (val === '') {
+                                setState(null);
+                                api.search('').draw();
+                                return;
+                            }
 
-        // tampilkan loading
-        setState('loading');
+                            // tampilkan loading
+                            setState('loading');
 
-        searchTimer = setTimeout(function () {
+                            searchTimer = setTimeout(function() {
 
-            // setelah draw selesai
-            api.one('draw', function () {
-                let total = api.page.info().recordsDisplay;
+                                // setelah draw selesai
+                                api.one('draw', function() {
+                                    let total = api.page.info().recordsDisplay;
 
-                if (total > 0) {
-                    setState('done');
-                } else {
-                    setState('empty');
-                }
-            });
+                                    if (total > 0) {
+                                        setState('done');
+                                    } else {
+                                        setState('empty');
+                                    }
+                                });
 
-            api.search(val).draw();
+                                api.search(val).draw();
 
-        }, 400);
-    });
+                            }, 400);
+                        });
 
-    // kalau klik clear (x)
-    $input.on('search', function () {
-        setState(null);
-        api.search('').draw();
-    });
-}
+                        // kalau klik clear (x)
+                        $input.on('search', function() {
+                            setState(null);
+                            api.search('').draw();
+                        });
+                    }
+                });
+
+                table.on('processing.dt', function(e, settings, processing) {
+
+                    if (processing) {
+                        showFilterLoading(); // spinner kecil
+                    } else {
+                        hideFilterLoading();
+                    }
+
+                });
+
+                // 📍 ketika kecamatan berubah → load desa
+                $('#filter_kecamatan').on('change', function() {
+
+                    showFilterLoading();
+
+                    let kecamatan = $(this).val();
+
+                    // kasih waktu browser render loading dulu
+                    setTimeout(() => {
+
+                        $('#filter_desa').html('<option value="">Loading...</option>');
+
+                        if (kecamatan === '') {
+                            $('#filter_desa').html('<option value="">Semua Desa</option>');
+                            table.draw();
+                            return;
+                        }
+
+                        $.get('/get-desa', {
+                            kecamatan: kecamatan
+                        }, function(data) {
+                            let html = '<option value="">Semua Desa</option>';
+
+                            data.forEach(function(d) {
+                                html += `<option value="${d}">${d}</option>`;
+                            });
+
+                            $('#filter_desa').html(html);
+
+                            table.draw();
+                        });
+
+                    }, 0); // ⬅️ ini kuncinya
+                });
+
+
+                // 📍 ketika desa berubah
+                $('#filter_desa').on('change', function() {
+                    showFilterLoading();
+
+                    setTimeout(() => {
+                        table.draw();
+                    }, 0);
+                });
+
+
+                // 📍 reset filter
+                $('#reset_filter').on('click', function() {
+                    showFilterLoading();
+                    $('#filter_kecamatan').val('');
+                    $('#filter_desa').html('<option value="">Semua Desa</option>');
+                    table.draw();
                 });
 
             });

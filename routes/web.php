@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WilayahController;
 use App\Http\Controllers\PencatatanUsahaController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\AdminBasicAuthMiddleware;
 use App\Http\Middleware\UserBasicAuthMiddleware;
 
@@ -36,6 +37,5 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
 Route::get('/dashboard/{id}', [\App\Http\Controllers\DashboardController::class, 'show'])->name('dashboard.show');
 Route::put('/dashboard/{id}', [\App\Http\Controllers\DashboardController::class, 'update'])->name('dashboard.update');
 Route::delete('/dashboard/{id}', [\App\Http\Controllers\DashboardController::class, 'destroy'])->name('dashboard.destroy');
-
-
+Route::get('/get-desa', [DashboardController::class, 'getDesa']);
 
